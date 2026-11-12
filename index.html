@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SS Delivery Tracker - Test</title>
+<title>SS Delivery Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMCIgZmlsbD0iIzBiODRkNiIvPjx0ZXh0IHg9IjI1NiIgeT0iMjY4IiBmb250LWZhbWlseT0iQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjUwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlNTPC90ZXh0Pjwvc3ZnPg==">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMCIgZmlsbD0iIzBiODRkNiIvPjx0ZXh0IHg9IjI1NiIgeT0iMjY4IiBmb250LWZhbWlseT0iQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjUwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiPlNTPC90ZXh0Pjwvc3ZnPg==">
+<meta name="theme-color" content="#0b84d6">
+<meta name="apple-mobile-web-app-title" content="SS Delivery">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -65,7 +70,7 @@ input::-webkit-calendar-picker-indicator{filter:brightness(0);opacity:1;cursor:p
 .mut{color:var(--mut);font-size:13px}.pos{color:var(--ac2)}.neg{color:var(--bad)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;max-width:90%}
 </style></head><body>
-<header><h1>SS <b>Delivery</b> Tracker <small style="background:var(--warn);color:#000;border-radius:6px;padding:2px 6px;font-size:11px;vertical-align:middle">TEST</small></h1><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="g sm" onclick="bkOpen()">Backup</button><button class="g sm" onclick="toggleTheme()">Tema</button></span></header>
+<header><h1>SS <b>Delivery</b> Tracker</h1><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="g sm" onclick="bkOpen()">Backup</button><button class="g sm" onclick="toggleTheme()">Tema</button></span></header>
 <main id="app"></main>
 <nav><button data-v="dash" onclick="go('dash')"><i>▦</i>Dashboard</button><button data-v="order" onclick="go('order')"><i>🚗</i>Order</button><button data-v="trip" onclick="go('trip')"><i>🧭</i>Trip</button><button data-v="aging" onclick="go('aging')"><i>⏳</i>Aging</button><button data-v="vendor" onclick="go('vendor')"><i>🏪</i>Vendor</button></nav>
 <script>
@@ -87,7 +92,7 @@ const vend=id=>DB.vendors.find(v=>v.id==id);
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
 function toggleTheme(){const d=getComputedStyle(document.body).colorScheme==="dark"||document.documentElement.dataset.theme==="dark";document.documentElement.dataset.theme=d?"light":"dark";DB.theme=document.documentElement.dataset.theme;save()}
 if(DB.theme)document.documentElement.dataset.theme=DB.theme;
-/* ---------- calc: lihat definisi tunggal "calc=function" di bagian TEST v2 ---------- */
+/* ---------- calc: definisi tunggal "calc=function" ada di bawah ---------- */
 /* ---------- nav ---------- */
 function go(v){V=v;document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==v));render()}
 function render(){const a=$("#app");a.innerHTML=V=="dash"?dash():V=="order"?orderList():V=="trip"?tripView3():V=="aging"?agingView():vendorList();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==V))}
@@ -436,7 +441,7 @@ const s=new Date(n);s.setDate(n.getDate()-((n.getDay()+6)%7));s.setHours(0,0,0,0
 const wk=d=>{const x=new Date(d+"T00:00:00"),j=new Date(x.getFullYear(),0,1);return Math.floor(((x-j)/864e5+((j.getDay()+6)%7))/7)};
 function bucket(d){const x=new Date(d+"T00:00:00");return P=="week"?wk(d):P=="month"?x.getMonth():P=="quarter"?Math.floor(x.getMonth()/3):Math.floor(x.getMonth()/6)}
 const HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],BLN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-/* ===================== TEST v2: single calc engine + vehicle allocation ===================== */
+/* ===================== Engine kalkulasi + alokasi kendaraan ===================== */
 const COM=.1,MINC=50000;let PAYF='all',VNF='',MT='rev',_AC={},_DS=null;
 const _ac=()=>{_AC={};_DS=null},_set=()=>_DS||(_DS=new Set(DB.orders));
 const _sv=save;save=function(){_ac();_sv()};
@@ -523,12 +528,12 @@ rows=()=>rowsOf2(DB.orders);
 /* ---- backup/restore + start (copy data asli dengan persetujuan) ---- */
 const _bd=bkData;bkData=function(){const d=JSON.parse(_bd());d.ver='test-v2';return JSON.stringify(d)};
 const _br=bkRestore;bkRestore=function(){try{localStorage.setItem('ssdt_test_prev',JSON.stringify(DB))}catch(e){}_br()};
-const _bo=bkOpen;bkOpen=function(){_bo();const s=$('#m .sheet');if(s)s.insertAdjacentHTML('beforeend','<h3 style="margin:18px 0 4px">Versi Test</h3><p class="mut">Data Test tersimpan terpisah. Data versi asli tidak pernah diubah.</p><div class="row"><button class="g sm" onclick="undoRestore()">Batalkan restore terakhir</button><button class="g sm" onclick="recopy()">Salin ulang dari data asli</button></div>')};
-function undoRestore(){const p=localStorage.getItem('ssdt_test_prev');if(!p)return toast('Belum ada restore yang bisa dibatalkan');askC('Kembalikan data Test ke kondisi sebelum restore terakhir?',()=>{DB=JSON.parse(p);save();closeM();render()},'Ya, kembalikan')}
-function recopy(){if(localStorage.getItem(TSRC)==null)return toast('Data versi asli tidak ditemukan di browser ini');askC('Timpa data Test dengan salinan baru dari versi asli? (versi asli tidak berubah)',()=>{try{localStorage.setItem('ssdt_test_prev',JSON.stringify(DB))}catch(e){}pendGo(1);closeM()},'Ya, salin ulang')}
+const _bo=bkOpen;bkOpen=function(){_bo();const s=$('#m .sheet');if(s)s.insertAdjacentHTML('beforeend','<h3 style="margin:18px 0 4px">Pemulihan Data</h3><p class="mut">Kalau hasil Restore keliru, kembalikan ke kondisi sebelum Restore terakhir.</p><div class="row"><button class="g sm" onclick="undoRestore()">Batalkan restore terakhir</button></div>')};
+function undoRestore(){const p=localStorage.getItem('ssdt_test_prev');if(!p)return toast('Belum ada restore yang bisa dibatalkan');askC('Kembalikan data ke kondisi sebelum restore terakhir?',()=>{DB=JSON.parse(p);save();closeM();render()},'Ya, kembalikan')}
+function recopy(){if(localStorage.getItem(TSRC)==null)return toast('Data versi asli tidak ditemukan di browser ini');askC('Timpa data dengan salinan baru dari versi asli?',()=>{try{localStorage.setItem('ssdt_test_prev',JSON.stringify(DB))}catch(e){}pendGo(1);closeM()},'Ya, salin ulang')}
 function pendGo(c){if(c){try{DB=JSON.parse(localStorage.getItem(TSRC))||DB}catch(e){return toast('Data asli gagal dibaca')}}DB.vendors=DB.vendors||[];DB.orders=DB.orders||[];DB.trips=DB.trips||{};DB.contacts=DB.contacts||{};DB.picNames=DB.picNames||{Ira:'Ira',Laser:'Laser'};DB.pics=DB.pics||['Ira','Laser'];
  if(!DB.vendors.length)DB.vendors=SEED.map((s,i)=>({id:'v'+i,nama:s[0],pic:s[1],tel:s[2],alamat:s[3],rate:s[4],map:s[5],mapMode:'link'}));PEND=false;migT();save();render()}
-const _rn=render;render=function(){_ac();if(PEND){$('#app').innerHTML=`<div class="card"><h3 style="margin:0 0 6px">SS Delivery Tracker - Test</h3><p>Versi percobaan dengan penyimpanan terpisah. Data versi asli <b>tidak diubah</b>.</p><p class="mut">Data versi asli ditemukan di browser ini. Salin ke versi Test?</p><div class="row"><button class="s" onclick="pendGo(1)">Salin data asli ke Test</button><button class="g" onclick="pendGo(0)">Mulai kosong</button></div></div>`;return}_rn()};
+const _rn=render;render=function(){_ac();if(PEND){$('#app').innerHTML=`<div class="card"><h3 style="margin:0 0 6px">SS Delivery Tracker</h3><p>Ditemukan data tersimpan di browser ini.</p><div class="row"><button class="s" onclick="pendGo(1)">Pakai data itu</button><button class="g" onclick="pendGo(0)">Mulai kosong</button></div></div>`;return}_rn()};
 if(!PEND)migT();save();
 
 /* ===================== SMART CHAT PARSER (lokal, modular) ===================== */
