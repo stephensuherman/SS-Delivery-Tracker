@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SS Delivery Tracker - Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#f4f5f9;--card:#fff;--ink:#1b2236;--mut:#6b7488;--line:#e3e6ee;--ac:#c2185b;--ac2:#0f8a7e;--warn:#d98200;--bad:#c62828;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141f;--card:#192031;--ink:#eef1f8;--mut:#9aa3b8;--line:#2a3249;--ac:#f06292;--ac2:#3ccbb9;--warn:#ffb74d;--bad:#ef5350;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10141f;--card:#192031;--ink:#eef1f8;--mut:#9aa3b8;--line:#2a3249;--ac:#f06292;--ac2:#3ccbb9;--warn:#ffb74d;--bad:#ef5350;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 "Plus Jakarta Sans",system-ui,sans-serif;padding-bottom:84px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;position:sticky;top:0;background:var(--bg);z-index:5}
+header h1{font-size:19px;margin:0;font-weight:800}header h1 b{color:var(--ac)}
+main{padding:0 14px 20px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{border-radius:12px;padding:12px;background:var(--card);border:1px solid var(--line)}.kpi small{color:var(--mut)}.kpi b{display:block;font-size:18px;margin-top:2px}
+.kpi.big{grid-column:1/3;background:var(--ac);color:#fff;border:0}.kpi.big small{color:#ffe3ee}.kpi.big b{font-size:26px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-height:44px}
+label{display:block;font-size:12.5px;color:var(--mut);margin:10px 0 4px;font-weight:600}
+button{border:0;border-radius:10px;padding:10px 14px;min-height:44px;background:var(--ac);color:#fff;font-weight:600;cursor:pointer}
+button.g{background:transparent;color:var(--ink);border:1px solid var(--line)}button.s{background:var(--ac2);color:#06231f}button.d{background:var(--bad)}
+button.sm{min-height:36px;padding:6px 10px;font-size:13px}
+.chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px;min-height:36px;color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tag{font-size:12px;padding:3px 9px;border-radius:99px;font-weight:600;display:inline-block}
+.t0{background:#e8eaf0;color:#444}.t1{background:#fff0d6;color:#8a5200}.t2{background:#d8f3ee;color:#07594f}.t3{background:#fde0e0;color:#8a1c1c}.tl{background:#d8f3ee;color:#07594f}.to{background:#fff0d6;color:#8a5200}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:6}
+nav button{flex:1;background:none;color:var(--mut);font-size:12px;display:flex;flex-direction:column;gap:2px;align-items:center}nav button.on{color:var(--ac)}nav i{font-size:20px;font-style:normal}
+.wa{background:#25d366;color:#fff;border-radius:50%;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:800;font-size:13px}
+a.mp{color:var(--ac2);font-weight:600;text-decoration:none}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));border-radius:99px;box-shadow:0 6px 18px #0004;z-index:6}
+.modal{position:fixed;inset:0;background:#0008;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:760px;max-height:94%;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:130px;margin-top:8px}.bars div{flex:1;display:flex;gap:2px;align-items:flex-end;height:100%}.bars i{flex:1;background:var(--ac);border-radius:4px 4px 0 0;min-height:2px}.bars i.p{background:var(--mut);opacity:.5}
+.lab{display:flex;gap:4px;font-size:10px;color:var(--mut)}.lab span{flex:1;text-align:center}
+.bb{display:inline-block;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:600}.b1{background:#3b82f633;color:#3b82f6}.b2{background:#e08a0033;color:#e08a00}.b3{background:#8b5cf633;color:#8b5cf6}.b4{background:#10a37f33;color:#10a37f}.b5{background:#d6336c33;color:#d6336c}.b6{background:var(--line);color:var(--mut)}
+.swr{position:relative;margin-bottom:12px}.swr .card{margin:0;position:relative;z-index:1;transition:transform .2s}.swa{position:absolute;right:0;top:0;bottom:0;display:flex;gap:6px;align-items:center;padding-right:8px}.swr.open .card{transform:translateX(-150px)}
+input::-webkit-calendar-picker-indicator{filter:brightness(0);opacity:1;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) input::-webkit-calendar-picker-indicator{filter:brightness(0) invert(1)}}
+:root[data-theme="dark"] input::-webkit-calendar-picker-indicator{filter:brightness(0) invert(1)}
+.card{font-size:14px}.kpi small{font-size:12px}.kpi b{font-size:17px}.grid,.tiles{gap:10px}input,select,textarea{font-size:14px}.hb b{font-size:13px}.tile b{font-size:15px}
+.pc{flex:1 1 auto;min-width:0;white-space:nowrap;text-align:center;padding:6px 4px;font-size:11.5px;display:flex;align-items:center;justify-content:center}
+:root{--bg:#f5faff;--card:#ffffff;--ink:#12304d;--mut:#64809b;--line:#d9e8f6;--ac:#0b84d6;--ac2:#f5b700;--ok:#0e9f6e;--warn:#e08a00;--bad:#d03a3a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1624;--card:#12243a;--ink:#e8f3ff;--mut:#8fa8c2;--line:#223a55;--ac:#38bdf8;--ac2:#fbbf24;--ok:#34d399;--warn:#f59e0b;--bad:#f87171}#app button:not(.g):not(.d):not(.s),.modal button:not(.g):not(.d):not(.s),:root:not([data-theme="light"]) .chip.on{color:#06233a}}
+:root[data-theme="dark"]{--bg:#0b1624;--card:#12243a;--ink:#e8f3ff;--mut:#8fa8c2;--line:#223a55;--ac:#38bdf8;--ac2:#fbbf24;--ok:#34d399;--warn:#f59e0b;--bad:#f87171}
+:root[data-theme="dark"] #app button:not(.g):not(.d):not(.s),:root[data-theme="dark"] .modal button:not(.g):not(.d):not(.s),:root[data-theme="dark"] .chip.on{color:#06233a}
+.pos{color:var(--ok)}a.mp{color:var(--ac)}.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}button.s{background:var(--ac2);color:#3b2a00}.kpi.big{background:var(--ac)}
+.b1{background:#0b84d633;color:#0b84d6}.b2{background:#f5b70044;color:#9a6b00}.b3{background:#38bdf833;color:#0a6fb0}.b4{background:#0e9f6e33;color:#0e9f6e}.b5{background:#f5b70033;color:#a37000}
+.card{box-shadow:0 1px 3px #0b84d60d}nav{box-shadow:0 -2px 12px #0b84d61a}
+.vlist{position:absolute;left:0;right:0;top:100%;margin-top:4px;max-height:230px;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;z-index:15;box-shadow:0 6px 18px #0b84d626}.vi{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}.vi:last-child{border-bottom:0}
+.btnl{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;padding:6px 12px;min-height:36px;font-size:13px;font-weight:600;cursor:pointer}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.tile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}.tile .ti{font-size:22px;line-height:1.1}.tile b{font-size:15px}.tile small{color:var(--mut);font-size:12px}
+.hb>span.w{width:122px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.hb{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}.hb>span{width:62px;color:var(--mut)}.hb>div{flex:1;background:var(--line);border-radius:6px;height:14px;overflow:hidden}.hb i{display:block;height:100%;background:var(--ac2);border-radius:6px}.hb b{min-width:96px;text-align:right}
+.photos{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.photos img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.sum{background:var(--card);border:1px dashed var(--ac2);border-radius:12px;padding:10px;margin-top:12px;font-size:13.5px}.sum div{display:flex;justify-content:space-between}
+.mut{color:var(--mut);font-size:13px}.pos{color:var(--ac2)}.neg{color:var(--bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;max-width:90%}
+</style></head><body>
+<header><h1>SS <b>Delivery</b> Tracker <small style="background:var(--warn);color:#000;border-radius:6px;padding:2px 6px;font-size:11px;vertical-align:middle">TEST</small></h1><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="g sm" onclick="bkOpen()">Backup</button><button class="g sm" onclick="toggleTheme()">Tema</button></span></header>
+<main id="app"></main>
+<nav><button data-v="dash" onclick="go('dash')"><i>▦</i>Dashboard</button><button data-v="order" onclick="go('order')"><i>🚗</i>Order</button><button data-v="trip" onclick="go('trip')"><i>🧭</i>Trip</button><button data-v="aging" onclick="go('aging')"><i>⏳</i>Aging</button><button data-v="vendor" onclick="go('vendor')"><i>🏪</i>Vendor</button></nav>
+<script>
+const SEED=[];
+let DB={vendors:[],orders:[],theme:""},V="dash",F=null,VF=null,R="month",P="month",CMP=false;
+const TKEY="ssdt_test",TSRC="ssdt";let PEND=false;
+try{const _r=localStorage.getItem(TKEY);if(_r!=null)DB=JSON.parse(_r)||DB;else if(localStorage.getItem(TSRC)!=null)PEND=true}catch(e){}
+if(!DB.vendors.length&&!PEND){DB.vendors=SEED.map((s,i)=>({id:"v"+i,nama:s[0],pic:s[1],tel:s[2],alamat:s[3],rate:s[4],map:s[5],mapMode:"link"}));save()}
+var SAVEFAIL=false;
+function save(){if(PEND)return;try{localStorage.setItem(TKEY,JSON.stringify(DB));SAVEFAIL=false}catch(e){toast("⚠️ GAGAL menyimpan: perubahan terakhir BELUM tersimpan");if(!SAVEFAIL){SAVEFAIL=true;try{saveFailAlert()}catch(_){}}}}
+function saveFailAlert(){if(document.getElementById('sfa'))return;var d=document.createElement("div");d.className="modal";d.id="sfa";d.style.zIndex=60;d.style.alignItems="center";d.innerHTML='<div class="card" style="max-width:360px;margin:16px;border:2px solid var(--bad)"><b style="color:var(--bad)">⚠️ Penyimpanan penuh</b><p style="margin:8px 0">Perubahan terakhir <b>belum tersimpan</b> dan bisa hilang saat halaman ditutup / di-reload. Amankan sekarang dengan download backup.</p><div class="row"><button class="s" onclick="try{bkDl()}catch(e){}">Download backup sekarang</button><button class="g" onclick="var m=document.getElementById(\'sfa\');if(m)m.remove()">Nanti</button></div></div>';document.body.appendChild(d)}
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),num=v=>parseFloat(v)||0,uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const wa=t=>{let d=String(t||"").replace(/\D/g,"");if(d.startsWith("0"))d="62"+d.slice(1);return d?"https://wa.me/"+d:""};
+const mapL=(a,c)=>{const u=((String(c||'').match(/https?:\/\/\S+/)||[])[0]||'').replace(/[)\].,;]+$/,'');if(u)return u;const cc=ll(c);return "https://www.google.com/maps/search/?api=1&query="+(cc?cc.join(','):encodeURIComponent(a||""))};
+const waBtn=(t,n)=>wa(t)?`<a class="wa" href="${wa(t)}" target="_blank" aria-label="WhatsApp ${n||""}">WA${n||""}</a>`:"";
+const vend=id=>DB.vendors.find(v=>v.id==id);
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
+function toggleTheme(){const d=getComputedStyle(document.body).colorScheme==="dark"||document.documentElement.dataset.theme==="dark";document.documentElement.dataset.theme=d?"light":"dark";DB.theme=document.documentElement.dataset.theme;save()}
+if(DB.theme)document.documentElement.dataset.theme=DB.theme;
+/* ---------- calc: lihat definisi tunggal "calc=function" di bagian TEST v2 ---------- */
+/* ---------- nav ---------- */
+function go(v){V=v;document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==v));render()}
+function render(){const a=$("#app");a.innerHTML=V=="dash"?dash():V=="order"?orderList():V=="trip"?tripView3():V=="aging"?agingView():vendorList();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==V))}
+/* ---------- vendor ---------- */
+function vendorList(){return picCard()+`<input placeholder="Cari vendor…" oninput="vq=this.value;rv()" value="${esc(window.vq||"")}"><div class="row sp" style="margin:10px 0 0"><b id="vc">${vcTxt()}</b><span class="row"><button class="g sm" onclick="cpAll()">Salin daftar</button><button class="g sm" onclick="vDl()">Download .txt</button></span></div><div class="row" style="margin:8px 0 0"><button class="g sm" onclick="vImpOpen()">Tambah dari Text</button></div><div id="vl" style="margin-top:10px">${vl()}</div><button class="fab" onclick="editV()">+ Vendor</button>`}
+function rv(){$("#vl").innerHTML=vl();$("#vc").textContent=vcTxt()}
+function vl(){return vSearch().map(v=>`<div class="swr"><div class="swa"><button class="sm" onclick="editV('${v.id}')">Edit</button><button class="d sm" onclick="delV('${v.id}')">Hapus</button></div><div class="card" style="cursor:pointer" ontouchstart="swS(event)" ontouchend="swE(event,this)" onclick="if(!event.target.closest('a,button,select,input'))editV('${v.id}')"><div class="row sp"><b>${esc(v.nama)}</b>${waBtn(v.tel)}</div>
+<div class="mut">${v.pic?"PIC: "+esc(v.pic)+" · ":""}${esc(v.tel)||"Telp: -"} · ${rp(v.rate)}/km</div>
+<div style="margin:6px 0"><a class="mp" href="${esc(vmapUrl(v))}" target="_blank">📍 ${esc(v.alamat)}</a></div>
+<div class="row"><button class="g sm" onclick="cpV('${v.id}')">Salin</button><button class="g sm" onclick="editV('${v.id}')">Ubah</button><button class="g sm" onclick="delV('${v.id}')">Hapus</button></div></div></div>`).join("")||'<p class="mut">Belum ada vendor.</p>'}
+function editV(id){VF=id?{...vend(id)}:{id:uid(),nama:"",pic:"",tel:"",alamat:"",rate:5000,map:"",mapMode:"link",isNew:1};vmodal()}
+function vmodal(){const v=VF;modal(`<h3>${v.isNew?"Vendor baru":"Ubah vendor"}</h3>
+<label>Nama vendor</label><input value="${esc(v.nama)}" oninput="VF.nama=tc(this)">
+<label>Nama PIC</label><input value="${esc(v.pic)}" oninput="VF.pic=this.value">
+<label>No. HP / WhatsApp</label><input inputmode="tel" value="${esc(v.tel)}" oninput="VF.tel=this.value">
+<label>Alamat lengkap</label><textarea oninput="VF.alamat=this.value">${esc(v.alamat)}</textarea>
+<label>Tarif per KM <span class="mut">(perubahan hanya berlaku untuk order baru)</span></label><div class="row">${[0,5000,6250,7000].map(r=>`<span class="chip ${v.rate==r?"on":""}" onclick="VF.rate=${r};vmodal()">${r?rp(r):"Rp 0"}</span>`).join("")}</div><input type="number" inputmode="numeric" value="${v.rate}" oninput="VF.rate=num(this.value)" style="margin-top:6px">
+<label>Sumber map</label><div class="row"><span class="chip ${v.mapMode=="link"?"on":""}" onclick="VF.mapMode='link';vmodal()">Link Google Maps</span><span class="chip ${v.mapMode=="auto"?"on":""}" onclick="VF.mapMode='auto';vmodal()">Otomatis dari alamat</span></div>
+${v.mapMode=="link"?`<input placeholder="https://maps.app.goo.gl/…" value="${esc(v.map)}" oninput="VF.map=this.value" style="margin-top:6px">`:""}
+<div class="row" style="margin-top:14px"><button onclick="saveV()">Simpan</button><button class="g" onclick="closeM()">Batal</button></div>`)}
+function saveV(){if(!VF.nama.trim())return toast("Nama vendor wajib diisi");const i=DB.vendors.findIndex(x=>x.id==VF.id),o={...VF};delete o.isNew;i<0?DB.vendors.push(o):DB.vendors[i]=o;save();closeM();render()}
+function delV(id){if(DB.orders.some(o=>o.vid==id))return toast("Vendor masih dipakai di order");askC("Hapus vendor ini?",()=>{DB.vendors=DB.vendors.filter(v=>v.id!=id);save();render()})}
+/* ---------- order list ---------- */
+const ST=["Belum Dikirim","Terkirim","Cancel"],STC=["t0","t2","t3"];
+function orderList(){const vn=o=>vend(o.vid)?.nama||"",tk=o=>o.tgl+(o.jAntar||o.jPick||""),L=[...DB.orders].sort(OS=="old"?(a,b)=>tk(a).localeCompare(tk(b)):OS=="va"?(a,b)=>vn(a).localeCompare(vn(b),"id")||tk(b).localeCompare(tk(a)):OS=="vz"?(a,b)=>vn(b).localeCompare(vn(a),"id")||tk(b).localeCompare(tk(a)):(a,b)=>tk(b).localeCompare(tk(a)));
+return rangeBar()+sortBar()+`<div class="row" style="margin-bottom:10px">${["Semua",...ST].map(s=>`<span class="chip ${(window.of||"Semua")==s?"on":""}" onclick="of='${s}';render()">${s}</span>`).join("")}</div>`+
+vendSel()+(L.filter(o=>inRange(o.tgl)&&((window.of||"Semua")=="Semua"||o.status==(window.of))&&(!OVF||o.vid==OVF)).map((o,n)=>{const v=vend(o.vid),c=calc(o);return `<div class="swr"><div class="swa"><button class="sm" onclick="editO('${o.id}')">Edit</button><button class="d sm" onclick="delOrd('${o.id}')">Hapus</button></div><div class="card" style="cursor:pointer" ontouchstart="swS(event)" ontouchend="swE(event,this)" onclick="if(!event.target.closest('a,button,select,input'))editO('${o.id}')"><div class="row sp"><b>${n+1}. ${esc(v?v.nama:"-")}</b><span class="tag ${STC[ST.indexOf(o.status)]}">${o.status}</span></div>
+<div class="row" style="gap:6px;margin:6px 0"><span class="bb b5">👤 ${esc(o.drops.map(d=>d.nama).filter(Boolean).join(" & ")||"(tanpa nama pemesan)")}</span><span class="bb b1">📅 ${fmtD(o.tgl)}</span><span class="bb b2">🕒 Ambil ${o.jPick||"-"}</span><span class="bb b3">📍 Tujuan: ${esc(o.drops.map(d=>(d.alamat||"").trim().split(/\s+/).slice(0,2).join(" ")).filter(Boolean).join(" · ")||"-")}</span>${o.status=="Belum Dikirim"&&(o.jPick||o.jAntar)?`<span class="bb b4" data-cd="${o.tgl}T${o.jPick||o.jAntar}"></span>`:""}</div>
+<div class="row sp" style="margin:6px 0"><span>${o.status=="Cancel"?"—":(c.del?"Nett "+rp(c.np)+(c.miss?' <span class="tag t1">⏳ sementara</span>':''):"Est. nett "+rp(c.nbv))+" · Gross "+rp(c.gross)}</span><span class="tag ${o.bayar=="Lunas"?"tl":"to"}">${o.bayar}</span></div>
+<div class="row">${o.drops.map((d,i)=>waCust(d.wa,o.drops.length>1?i+1:"")).join("")}${mapLinks(o)}<span style="flex:1"></span>
+<select style="width:auto" onchange="setSt('${o.id}',this.value)">${ST.map(s=>`<option ${s==o.status?"selected":""}>${s}</option>`).join("")}</select>
+<button class="g sm" onclick="editO('${o.id}')">Buka</button></div></div></div>`}).join("")||'<p class="mut">Belum ada order. Tekan + Order.</p>')+`<button class="fab" onclick="editO()">+ Order</button>`}
+function setSt(id,s){const o=DB.orders.find(x=>x.id==id);o.status=s;if(s=="Terkirim"&&!o.kirimAt)o.kirimAt=new Date().toISOString();save();render()}
+/* ---------- order form ---------- */
+const newDrop=()=>({nama:"",wa:"",alamat:"",map:"",detail:"",km:""});
+function editO(id){F=id?JSON.parse(JSON.stringify(DB.orders.find(o=>o.id==id))):{id:uid(),isNew:1,src:"Ira",tgl:today(),jPick:"",jAntar:"",jTerima:"",vid:"",rate:"",kmAsal:"",kmPulang:"",tol:"",park:"",notaTol:[],notaPark:[],status:"Belum Dikirim",bayar:"Outstanding",tglBayar:"",real:"",drops:[newDrop()],fPick:[],fDel:[],chat:""};omodal()}
+function omodal(){const o=F,c=calc(o),y=(k,v)=>`value="${esc(v)}" oninput="set('${k}',this.value)"`;
+modal(`<div style="position:sticky;top:6px;height:0;z-index:5;display:flex;justify-content:flex-end"><button class="g sm" style="background:var(--card);box-shadow:0 2px 8px #0003;min-width:40px" onclick="closeM()" aria-label="Tutup">✕</button></div><h3 style="margin:0 0 8px;padding-right:48px">${o.isNew?"Order baru":"Detail order"}</h3>
+<details ${o.isNew?"open":""} class="card" style="border:1.5px solid var(--ac)"><summary style="font-size:15px;font-weight:800;cursor:pointer">📋 Tempel chat WhatsApp <span class="mut" style="font-weight:400">— isi form otomatis</span></summary>
+<textarea id="chat" rows="5" placeholder="Paste chat pemesanan di sini…">${esc(o.chat)}</textarea>
+<div class="row" style="margin-top:8px"><button class="s" style="width:100%;font-weight:700" onclick="parseChat3()">✨ Baca teks &amp; isi otomatis</button></div></details>
+<label>Sumber order</label><select onchange="set('src',this.value)">${(DB.pics||["Ira","Laser"]).map(s=>`<option value="${esc(s)}" ${o.src==s?"selected":""}>${esc(picName(s))}</option>`).join("")}</select>
+<div class="grid"><div><label>Tanggal pengantaran</label>${dp("tgl",o.tgl)}</div><div><label>Jam pengambilan</label><input type="time" ${y("jPick",o.jPick)}></div><div><label>Jam pengantaran</label><input id="jAntar" type="time" ${y("jAntar",o.jAntar)}></div><div><label>Jam diterima <span class="mut">(opsional)</span></label><input type="time" ${y("jTerima",o.jTerima)}></div></div>
+<label>Vendor</label><div id="vwrap" style="position:relative"><input id="vsearch" autocomplete="off" placeholder="Pilih / cari vendor…" value="${esc(vend(o.vid)?.nama||"")}" onfocus="vOpen(this)" onclick="vOpen(this)" oninput="vFilter(this.value)"><div id="vlist" class="vlist" style="display:none"></div></div>
+${vend(o.vid)?`<div class="mut" style="margin-top:4px"><a class="mp" target="_blank" href="${esc(vmapUrl(vend(o.vid)))}">📍 ${esc(vend(o.vid).alamat)}</a> · ${rp(vend(o.vid).rate)}/km</div>`:""}
+
+
+<h4 style="margin:14px 0 2px;font-size:15px">Alamat pengiriman (multi-drop)</h4>
+${o.drops.map((d,i)=>`<div class="card" style="margin-top:8px"><div class="row sp"><b>Tujuan ${i+1}</b>${o.drops.length>1?`<button class="g sm" onclick="F.drops.splice(${i},1);omodal()">Hapus</button>`:""}</div>
+<label>Nama penerima</label><input value="${esc(d.nama)}" oninput="D(${i},'nama',this.value)">
+<label>No. WhatsApp</label><div class="row"><input style="flex:1" inputmode="tel" value="${esc(d.wa)}" oninput="D(${i},'wa',this.value)">${waBtn(d.wa,F.drops.length>1?i+1:"")}</div>
+<label>Alamat</label><textarea oninput="D(${i},'alamat',this.value)">${esc(d.alamat)}</textarea>
+<label>Link map (kosong = otomatis dari alamat)</label><div class="row"><input style="flex:1" value="${esc(d.map)}" oninput="D(${i},'map',this.value)"><a class="mp" target="_blank" href="${esc(mapL(d.alamat,d.map))}">Buka</a></div>
+<label>Detail barang</label><input value="${esc(d.detail)}" oninput="D(${i},'detail',this.value)">
+<label>Est. jarak pengiriman (KM)</label><input id="km${i}" type="number" step="0.1" inputmode="decimal" value="${esc(d.km)}" oninput="D(${i},'km',this.value)"><div class="mut" style="margin-top:4px">Dasar komisi 10% &amp; alokasi biaya kendaraan</div></div>`).join("")}
+<div class="row"><button class="g" onclick="F.drops.push(newDrop());omodal()">+ Tambah alamat pengiriman</button><a class="mp" target="_blank" href="${dirLink(o)}">Rute final</a></div>
+<h4 style="margin:14px 0 2px;font-size:15px">Tol &amp; parkir <span class="mut" style="font-weight:400;font-size:12px">(estimasi, bisa diedit)</span></h4><div class="grid"><div><label>Biaya tol</label>${ni("tol",o.tol)}</div><div><label>Biaya parkir</label>${ni("park",o.park)}</div></div>
+<h4 style="margin:14px 0 2px;font-size:15px">Gross vendor</h4><div class="grid"><div><label>Gross vendor (Rp)</label>${ni("nom",o.nom)}</div><div><label>Tanggal transfer</label><input type="date" value="${esc(o.tglBayar)}" onclick="try{this.showPicker()}catch(e){}" onchange="setTgl(this.value)"></div></div><p class="mut" style="margin:4px 0 0">Total yang dibayar vendor, sudah termasuk tol &amp; parkir. Komisi 10% dihitung otomatis. Mengisi tanggal transfer menandai Lunas.</p>
+
+<label>Status pengiriman</label><div class="row">${ST.map(s=>`<span class="chip ${o.status==s?"on":""}" onclick="F.status='${s}';if(F.status=='Terkirim'&&!F.kirimAt)F.kirimAt=new Date().toISOString();omodal()">${s}</span>`).join("")}</div>
+
+<label>Status pembayaran</label><div class="row">${["Outstanding","Lunas"].map(s=>`<span class="chip ${o.bayar==s?"on":""}" onclick="payPick('${s}')">${s}</span>`).join("")}</div>
+
+
+<div class="sum" id="sum">${sumHtml(c)}</div>
+<div class="row" style="margin-top:14px"><button onclick="saveO()">Simpan</button><button class="g" onclick="closeM()">Tutup</button>${o.isNew?"":`<button class="d" onclick="delO()">Hapus</button>`}</div>`)}
+function set(k,v){const old=F[k];F[k]=v;if(k=="jPick"&&(!F.jAntar||F.jAntar==old)){F.jAntar=v;const e=$("#jAntar");if(e)e.value=v}$("#sum").innerHTML=sumHtml(calc(F))}
+function D(i,k,v){F.drops[i][k]=v;if(k=="km"){F.drops[i].auto=0;$("#sum").innerHTML=sumHtml(calc(F))}if(k=="map")autoKm(i)}
+function parseChat(){const t=$("#chat").value;F.chat=t;if(!t.trim())return toast("Tempel teks chat dulu");
+const L=t.toLowerCase();const v=DB.vendors.find(v=>L.includes(v.nama.toLowerCase().split("(")[0].trim()));if(v)F.vid=v.id;
+let m=t.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);if(m){const y=m[3].length==2?"20"+m[3]:m[3];F.tgl=`${y}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`}else{const B=["januari","februari","maret","april","mei","juni","juli","agustus","september","oktober","november","desember"];m=L.match(/(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)(?:\s+(\d{4}))?/);if(m)F.tgl=`${m[3]||new Date().getFullYear()}-${String(B.indexOf(m[2])+1).padStart(2,"0")}-${m[1].padStart(2,"0")}`}
+m=t.match(/pick\s*-?up[^\d]{0,12}(\d{1,2})[.:](\d{2})/i)||t.match(/jam[^\d]{0,6}(\d{1,2})[.:](\d{2})/i);if(m)F.jPick=m[1].padStart(2,"0")+":"+m[2];
+const blocks=t.split(/\n\s*\n|\n(?=\s*\d+[.)]\s)/).filter(b=>/(\+?62|08)\d{8,}/.test(b.replace(/[\s-]/g,"")));
+if(blocks.length){F.drops=blocks.map(b=>{const d=newDrop(),ph=b.replace(/[\s-]/g,"").match(/(\+?62|0)8\d{8,11}/);if(ph)d.wa=ph[0];
+const nm=b.match(/(?:nama|penerima|an|a\/n)\s*[:\-]\s*(.+)/i);d.nama=nm?nm[1].trim():"";const al=b.match(/alamat\s*[:\-]\s*([\s\S]+?)(?:\n\s*(?:no|wa|telp|hp|catatan|note|barang)|$)/i);d.alamat=al?al[1].replace(/\n/g," ").trim():"";
+const it=b.match(/(?:barang|pesanan|catatan|note)\s*[:\-]\s*(.+)/i);d.detail=it?it[1].trim():"";return d})}
+const tl=/tol/i.test(t);toast("Terisi otomatis"+(tl?" (ada catatan tol)":"")+". Cek lagi sebelum disimpan.");omodal()}
+let DM="",OF={m:"day",d1:"",d2:"",m1:"",m2:"",y1:"",y2:"",open:0};
+const fmtD=d=>d?d.split("-").reverse().join("/"):"";
+const parseD=s=>{const m=String(s||"").match(/^(\d\d)\/(\d\d)\/(\d{4})$/);return m?m[3]+"-"+m[2]+"-"+m[1]:/^\d{4}-\d\d-\d\d$/.test(s)?s:""};
+function dmask(el){const d=el.value.replace(/\D/g,"").slice(0,8);el.value=d.length>4?d.slice(0,2)+"/"+d.slice(2,4)+"/"+d.slice(4):d.length>2?d.slice(0,2)+"/"+d.slice(2):d}
+const di=(k,v)=>'<input inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY" value="'+fmtD(v)+'" oninput="dmask(this);setDt(\''+k+'\',this.value)">';
+function setDt(k,v){const p=parseD(v);if(p||!v)F[k]=p}
+function tc(el){const s=el.selectionStart;el.value=el.value.replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase());try{el.setSelectionRange(s,s)}catch(e){}return el.value}
+function inOF(d){const f=OF;if(f.m=="day"){const a=parseD(f.d1),b=parseD(f.d2)||a;return !((a&&d<a)||(b&&d>b))}
+const mo=f.m=="month",k=mo?d.slice(0,7):d.slice(0,4),a=mo?f.m1:f.y1,b=(mo?f.m2:f.y2)||a;return !((a&&k<a)||(b&&k>b))}
+function filterBar(){const f=OF,act=f.d1||f.d2||f.m1||f.m2||f.y1||f.y2;
+let h='<div class="row" style="margin-bottom:10px"><button class="g sm" onclick="OF.open=!OF.open;render()">📅 Filter tanggal'+(act?" · aktif":"")+'</button>'+(act?'<button class="g sm" onclick="OF={m:OF.m,d1:\'\',d2:\'\',m1:\'\',m2:\'\',y1:\'\',y2:\'\',open:1};render()">Reset</button>':"")+'</div>';
+if(!f.open)return h;
+const chips=[["day","Hari"],["month","Bulan"],["year","Tahun"]].map(([k,t])=>'<span class="chip '+(f.m==k?"on":"")+'" onclick="OF.m=\''+k+'\';render()">'+t+'</span>').join("");
+let a,b;
+if(f.m=="day"){const x=(id,l,v)=>'<div><label>'+l+'</label><input type="date" value="'+esc(v)+'" onchange="OF.'+id+'=this.value;render()"></div>';a=x("d1","Dari tanggal",f.d1);b=x("d2","Sampai tanggal",f.d2)}
+else{const t=f.m=="month"?"month":"number",k1=f.m=="month"?"m1":"y1",k2=f.m=="month"?"m2":"y2",x=(id,l,v)=>'<div><label>'+l+'</label><input type="'+t+'" '+(t=="number"?'placeholder="2026" ':"")+'value="'+esc(v)+'" onchange="OF.'+id+'=this.value;render()"></div>';a=x(k1,"Dari",f[k1]);b=x(k2,"Sampai",f[k2])}
+return h+'<div class="card"><div class="row">'+chips+'</div><div class="grid">'+a+b+'</div><p class="mut" style="margin:8px 0 0">Kosongkan “sampai” untuk melihat satu hari / bulan / tahun saja.</p></div>'}
+function ll(s){s=String(s||"");const m=s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||s.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||s.match(/^\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*$/)||s.match(/[?&](?:q|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)/);return m?[+m[1],+m[2]]:null}
+function autoKm(i){const d=F.drops[i],v=vend(F.vid),a=v&&ll(v.map),b=ll(d.map);if(!a||!b||(d.km&&!d.auto))return;const E=6371,r=x=>x*Math.PI/180,p=r(b[0]-a[0]),q=r(b[1]-a[1]),h=Math.sin(p/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(q/2)**2;d.km=(2*E*Math.asin(Math.sqrt(h))*1.3).toFixed(1);d.auto=1;const el=$("#km"+i);if(el)el.value=d.km}
+function kmLink(i){const v=vend(F.vid),d=F.drops[i];return"https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(v?v.alamat:"")+"&destination="+encodeURIComponent(d.alamat||"")+"&travelmode=driving"}
+function parseChat2(){const t=$("#chat").value;F.chat=t;if(!t.trim())return toast("Tempel teks chat dulu");
+const L=t.toLowerCase(),v=DB.vendors.find(v=>L.includes(v.nama.toLowerCase().split("(")[0].trim()));if(v)F.vid=v.id;
+let m=t.match(/tanggal[^\n\d]*(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/i)||t.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+if(m){const y=m[3].length==2?"20"+m[3]:m[3];F.tgl=y+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0")}
+else{const B=["januari","februari","maret","april","mei","juni","juli","agustus","september","oktober","november","desember"],n=L.match(/(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)(?:\s+(\d{4}))?/);if(n)F.tgl=(n[3]||new Date().getFullYear())+"-"+String(B.indexOf(n[2])+1).padStart(2,"0")+"-"+n[1].padStart(2,"0")}
+m=t.match(/jam[^\n\d]*(\d{1,2})[.:](\d{2})/i);if(m)F.jAntar=m[1].padStart(2,"0")+":"+m[2];
+m=t.match(/pick\s*-?up[^\n\d]*(\d{1,2})[.:](\d{2})/i);if(m)F.jPick=m[1].padStart(2,"0")+":"+m[2];
+const sq=b=>b.replace(/(\d)[\s-]+(?=\d)/g,"$1");
+let bl=t.split(/\n\s*\n|\n(?=\s*\d+[.)]\s)/).filter(b=>/penerima|(\+?62|0)8\d{8,}/.test(sq(b)));if(!bl.length)bl=[t];
+const stop="(?=\\n\\s*(?:no|wa|telp|hp|catatan|note|paket|jam|tanggal|nama)\\b|$)";
+F.drops=bl.map(b=>{const d=newDrop(),p=sq(b).match(/(\+?62|0)8\d{8,11}/);if(p)d.wa=p[0];
+const nm=b.match(/(?:nama(?:\s*penerima)?|penerima|a\/n)\s*[:\-]\s*(.+)/i);d.nama=nm?nm[1].trim():"";
+const al=b.match(new RegExp("alamat\\s*penerima\\s*[:\\-]?\\s*([\\s\\S]+?)"+stop,"i"))||b.match(new RegExp("alamat\\s*[:\\-]\\s*([\\s\\S]+?)"+stop,"i"));d.alamat=al?al[1].replace(/\s*\n\s*/g," ").trim():"";
+const pk=b.match(/^.*paket.*$/im);d.detail=pk?pk[0].replace(/^\s*paket\s*[:\-]\s*/i,"").trim():"";return d});
+toast("Terisi otomatis. Cek lagi sebelum disimpan.");omodal()}
+let DR={a:'',b:''};
+function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]}
+function vSearch(){const q=(window.vq||'').toLowerCase().trim(),A=[...DB.vendors].sort((a,b)=>a.nama.localeCompare(b.nama,'id'));if(!q)return A;
+const sc=v=>{const s=(v.nama+' '+(v.pic||'')+' '+v.alamat).toLowerCase(),n=v.nama.toLowerCase(),W=s.split(/[^a-z0-9]+/);let t=0;for(const w of q.split(/\s+/)){if(n.includes(w))t+=3;else if(s.includes(w))t+=1.5;else if(W.some(x=>lev(x.slice(0,w.length),w)<=(w.length>3?1:0)))t+=1;else return 0}return t};
+return A.map(v=>[v,sc(v)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).map(x=>x[0])}
+function parseChat3(){const t=$('#chat').value;if(!/alamat\s*pengiriman/i.test(t))return parseChat2();
+F.chat=t;const U=/https?:\/\/[^\s)]+/g,k=t.search(/alamat\s*pengiriman/i),H=t.slice(0,k),S=t.slice(k).replace(/^alamat\s*pengiriman\s*[:\-]?\s*/i,''),HU=H.replace(U,''),low=H.toLowerCase().replace(/\s+/g,' '),urls=H.match(U)||[];
+const v=DB.vendors.find(v=>{const id=(v.map.match(/\/([A-Za-z0-9]{10,})(?:\?|$)/)||[])[1];return id&&urls.some(u=>u.includes(id))})||DB.vendors.find(v=>low.includes(v.nama.toLowerCase().split('(')[0].trim()))||DB.vendors.find(v=>{const w=v.alamat.toLowerCase().replace(/^jl\.?\s*/,'').split(/\s+/).slice(0,2).join(' ');return w.length>6&&low.includes(w)});if(v)F.vid=v.id;
+let m=HU.match(/(\d{1,2})\s+(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)[a-z]*\.?(?:\s+(\d{4}))?/i);
+if(m){const mo=['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'].indexOf(m[2].toLowerCase())+1;F.tgl=(m[3]||new Date().getFullYear())+'-'+String(mo).padStart(2,'0')+'-'+m[1].padStart(2,'0')}
+else if(m=HU.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/)){F.tgl=(m[3].length==2?'20'+m[3]:m[3])+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}
+m=HU.match(/(\d{1,2})[.:](\d{2})/)||HU.match(/jam\s*(\d{1,2})\b/i);if(m){F.jPick=m[1].padStart(2,'0')+':'+(m[2]||'00');F.jAntar=F.jPick}
+const items=S.split(/\n(?=\s*\d+[.)]\s)/).map(s=>s.trim()).filter(Boolean);
+F.drops=items.map(b=>{const d=newDrop(),ad=[];for(const ln of b.replace(/^\d+[.)]\s*/,'').split('\n').map(s=>s.trim()).filter(Boolean)){const u=ln.match(/https?:\/\/[^\s)]+/);if(u)d.map=u[0];
+let x=ln.replace(/\(?https?:\/\/[^\s)]+\)?/g,'').trim();if(!x)continue;
+if(!d.wa){const pm=x.match(/(?:\+62|62|0)8[\d\s-]{8,13}/);if(pm&&pm[0].replace(/\D/g,'').length>=9){d.wa=pm[0].replace(/[\s-]/g,'');x=x.replace(pm[0],'').replace(/^[\s,:\-]+|[\s,:\-]+$/g,'');if(!x)continue}}
+if(/paket/i.test(x)){d.detail=x.replace(/^paket\s*[:\-]?\s*/i,'').trim()||x;continue}
+if(!d.nama&&!ad.length){d.nama=x.replace(/^nama\s*[:\-]\s*/i,'');continue}
+ad.push(x.replace(/^alamat(?:\s*penerima)?\s*[:\-]\s*/i,''))}
+d.alamat=ad.join(', ');return d});
+if(!F.drops.length)F.drops=[newDrop()];F.drops.forEach((_,i)=>autoKm(i));toast('Terisi otomatis. Cek lagi sebelum disimpan.');omodal()}
+let CH='all';const cv=o=>o.bayar=='Lunas'?calc(o).val:(CH=='lunas'?0:calc(o).bnet);
+function vcTxt(){const n=DB.vendors.length,k=vSearch().length;return 'Total vendor: '+n+(k!=n?' · ditampilkan '+k:'')}
+function vTxt(v){return '*'+v.nama+'*\n'+(v.pic?'PIC: '+v.pic+'\n':'')+'Telp: '+(v.tel||'-')+'\nAlamat: '+v.alamat+'\nTarif: '+rp(v.rate)+'/km\nMap: '+mapL(v.alamat,v.mapMode=='auto'?'':v.map)}
+async function cpText(s){try{await navigator.clipboard.writeText(s);toast('Tersalin. Tinggal paste di WhatsApp')}catch(e){const a=document.createElement('textarea');a.value=s;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Tersalin. Tinggal paste di WhatsApp')}catch(x){toast('Gagal menyalin')}a.remove()}}
+function cpV(id){cpText(vTxt(vend(id)))}
+function vAll(){return vSearch().map((v,i)=>(i+1)+'. '+vTxt(v)).join('\n\n')}
+function cpAll(){cpText(vAll())}
+function vDl(){const b=new Blob([vAll()],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='vendor-'+today()+'.txt';a.click()}
+let PM='',PD='hari',PT='rev',EX={t:'xlsx',a:'',b:''};
+function perfCard(live){const H=['Sen','Sel','Rab','Kam','Jum','Sab','Min'],yr=PM?PM.slice(0,4):(PY||String(new Date().getFullYear())),WL=wkList(PM),dims={hari:['Hari',H,o=>(new Date(o.tgl+'T00:00:00').getDay()+6)%7],minggu:['Minggu',WL.map(wkLab),o=>WL.indexOf(wkStart(o.tgl))],tanggal:['Tanggal',Array.from({length:31},(_,i)=>String(i+1)),o=>+o.tgl.slice(8)-1],bulan:['Bulan',BLN,o=>+o.tgl.slice(5,7)-1]},
+d=dims[PD],src=PD=='bulan'?live.filter(o=>o.tgl.slice(0,4)==yr):PD=='minggu'?live:live.filter(o=>!PM||o.tgl.slice(0,7)==PM),A=d[1].map(()=>({n:0,r:0}));
+src.forEach(o=>{const i=d[2](o);if(i<0||!A[i])return;A[i].n++;A[i].r+=(MT=='np'?calc(o).np:calc(o).val)});
+const V=A.map(x=>PT=='n'?x.n:x.r),mx=Math.max(1,...V),top=V.indexOf(Math.max(...V)),ch=(cur,k,t,v)=>`<span class="chip ${cur==k?'on':''}" onclick="${v}='${k}';render()">${t}</span>`;
+return `<div class="card"><div class="row sp"><b>Performa (grafik)</b><span class="row">${pmSel()}${PM?`<button class="g sm" onclick="PM='';render()">Semua</button>`:''}</span></div>
+<div class="row" style="margin-top:8px">${Object.entries(dims).map(([k,x])=>ch(PD,k,x[0],'PD')).join('')}</div>
+<div class="row" style="margin-top:6px">${ch(PT,'rev','Pendapatan','PT')}${ch(PT,'n','Jumlah order','PT')}<span style="margin-left:auto">${pfSel('PF')}</span></div>
+<p class="mut" style="margin:8px 0 2px">${PD=='bulan'?'Tahun '+yr:PD=='minggu'?(PM?'Data minggu bulan '+PM.slice(5)+'/'+PM.slice(0,4):'Data 12 minggu terakhir'):(PM?'Bulan '+PM.slice(5)+'/'+PM.slice(0,4):'Semua bulan')}</p>
+${d[1].map((l,i)=>`<div class="hb"><span>${l}</span><div><i style="width:${V[i]/mx*100}%${i==top&&V[i]>0?';background:var(--ac)':''}"></i></div><b>${PT=='n'?V[i]+' order':rp(V[i])}</b></div>`).join('')}</div>`}
+const rowsOf=L=>L.map(o=>{const c=calc(o);return{Tanggal:fmtD(o.tgl),Sumber:o.src,Vendor:vend(o.vid)?.nama||'',Tujuan:o.drops.map(d=>d.nama).join('; '),KM:+c.km.toFixed(1),Status:o.status,Bayar:o.bayar,Base:c.base,Komisi:c.pot,Tol:num(o.tol),Parkir:num(o.park),Estimasi:o.status=='Cancel'?0:c.net,Real:c.fin??'',Selisih:c.sel??''}});
+const sumOf=L=>{const ok=L.filter(o=>o.status!='Cancel'),lun=ok.filter(o=>o.bayar=='Lunas'),un=ok.filter(o=>o.bayar!='Lunas'),s=(A,f)=>A.reduce((t,o)=>t+f(o),0);return[['Total order',L.length],['Order cancel',L.length-ok.length],['Order lunas',lun.length],['Order belum lunas',un.length],['Total pendapatan (lunas)',s(lun,o=>calc(o).val)],['Estimasi belum lunas',s(un,o=>calc(o).bnet)],['Total pendapatan + estimasi',s(ok,o=>calc(o).val)],['Total KM',+s(ok,o=>calc(o).km).toFixed(1)],['Total cost',trOf(L)+s(ok,o=>num(o.tol))+s(ok,o=>num(o.park))],['Total tol',s(ok,o=>num(o.tol))],['Total parkir',s(ok,o=>num(o.park))]]};
+function exOpen(t){EX={t:t||'xlsx',a:'',b:''};if(R=='range'){EX.a=DR.a;EX.b=DR.b}exm()}
+function exQ(k){const n=new Date(),p=x=>String(x).padStart(2,'0'),y=n.getFullYear(),m=n.getMonth();if(k=='day'){EX.a=today();EX.b=''}else if(k=='month'){EX.a=y+'-'+p(m+1)+'-01';EX.b=y+'-'+p(m+1)+'-'+p(new Date(y,m+1,0).getDate())}else if(k=='year'){EX.a=y+'-01-01';EX.b=y+'-12-31'}else{EX.a='';EX.b=''}exm()}
+function exm(){modal(`<h3>Download data dashboard</h3><label>Format</label><div class="row">${[['xlsx','Excel (XLSX)'],['pdf','PDF']].map(([k,t])=>`<span class="chip ${EX.t==k?'on':''}" onclick="EX.t='${k}';exm()">${t}</span>`).join('')}</div><label>Rentang tanggal pengantaran</label><div class="row"><input type="date" style="flex:1;min-width:120px" value="${esc(EX.a)}" onchange="EX.a=this.value"><span class="mut">s/d</span><input type="date" style="flex:1;min-width:120px" value="${esc(EX.b)}" onchange="EX.b=this.value"></div><div class="row" style="margin-top:8px">${[['day','Hari ini'],['month','Bulan ini'],['year','Tahun ini'],['all','Semua']].map(([k,t])=>`<span class="chip" onclick="exQ('${k}')">${t}</span>`).join('')}</div><p class="mut">Kosongkan untuk mengunduh semua data. Isi “dari” saja untuk satu hari.</p><div class="row" style="margin-top:14px"><button onclick="exGo()">Download</button><button class="g" onclick="closeM()">Batal</button></div>`)}
+let OS='new';
+function sortBar(){return `<div class="row" style="margin-bottom:10px;gap:5px;flex-wrap:nowrap;overflow-x:auto"><span class="mut" style="flex:none">↕</span>${[['new','Terbaru'],['old','Terlama'],['va','Vendor A-Z'],['vz','Vendor Z-A']].map(([k,t])=>`<span class="chip ${OS==k?'on':''}" style="flex:none;white-space:nowrap;padding:6px 9px;font-size:12px" onclick="OS='${k}';render()">${t}</span>`).join('')}</div>`}
+function rawN(v){return String(v).replace(/\D/g,'')}
+function fmtN(v){return v===''||v==null?'':rawN(v).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+function fmtNum(el){el.value=fmtN(el.value)}
+const ni=(k,v)=>`<input inputmode="numeric" placeholder="0" value="${fmtN(v)}" oninput="fmtNum(this);set('${k}',rawN(this.value))">`;
+function fmtK(k){return k.replace(/^(\d{4})-(\d\d)-(\d\d)$/,'$3/$2/$1').replace(/^(\d{4})-(\d\d)-M/,'$2/$1 · minggu ').replace(/^(\d{4})-(\d\d)$/,'$2/$1')}
+function bt(ic,t,b){return b?`<div class='tile'><small><span style='font-size:15px'>${ic}</span> ${t}</small><b>${fmtK(b[0])}</b><small>${b[1].n} order · ${rp(b[1].r)}</small></div>`:''}
+DB.orders.forEach(o=>{if(o.status=='Sedang Proses Kirim')o.status='Belum Dikirim'});save();
+function cmpRow(live,yr){const ys=[...new Set(live.map(o=>+o.tgl.slice(0,4)))].filter(y=>y<yr).sort((a,b)=>b-a);
+if(!ys.length){CMP=0;return '<p class="mut" style="margin:6px 0 0">Belum ada data tahun sebelumnya untuk dibandingkan.</p>'}
+if(CMP&&!ys.includes(CMP))CMP=0;
+return '<div class="row" style="margin-top:8px"><span class="mut">Bandingkan</span><span class="chip '+(!CMP?'on':'')+'" onclick="CMP=0;render()">Tanpa</span>'+ys.map(y=>`<span class="chip ${CMP==y?'on':''}" onclick="CMP=${y};render()">${yr-y==1?'Tahun lalu':(yr-y)+' tahun lalu'} (${y})</span>`).join('')+'</div>'}
+const BLNF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+DB.trips=DB.trips||{};
+const dp=(k,v)=>`<input type="date" value="${v}" onchange="F['${k}']=this.value">`;
+const trM=t=>t.veh=='Listrik'?num(t.charge):num(t.km)*(t.veh=='Diesel'?680:1000);
+const dayRev=d=>DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel').reduce((s,o)=>s+calc(o).val,0);
+const trRange=()=>Object.entries(DB.trips).filter(([d])=>inRange(d)).reduce((s,[,t])=>s+trM(t),0);
+const trOf=L=>{const ds=new Set(L.filter(o=>o.status!='Cancel').map(o=>o.tgl));return Object.entries(DB.trips).filter(([d])=>ds.has(d)).reduce((s,[,t])=>s+trM(t),0)};
+function askC(msg,fn,yes){window.cfFn=fn;const d=document.createElement('div');d.className='modal';d.id='cf';d.style.zIndex=40;d.style.alignItems='center';d.innerHTML=`<div class="card" style="max-width:340px;margin:16px"><p>${msg}</p><div class="row"><button class="${yes?'s':'d'}" onclick="$('#cf').remove();cfFn()">${yes||'Ya, hapus'}</button><button class="g" onclick="$('#cf').remove()">Batal</button></div></div>`;document.body.appendChild(d)}
+function delOrd(id){askC('Hapus order ini?',()=>{DB.orders=DB.orders.filter(o=>o.id!=id);save();closeM();render()})}
+function pickVN(n){const v=DB.vendors.find(x=>x.nama.toLowerCase()==n.trim().toLowerCase());if(v)pickV(v.id);else toast('Pilih nama vendor dari daftar')}
+function mapMe(i){if(!navigator.geolocation)return toast('Lokasi tidak didukung perangkat ini');toast('Mengambil lokasi…');navigator.geolocation.getCurrentPosition(p=>{const d=F.drops[i];d.map='https://www.google.com/maps/search/?api=1&query='+p.coords.latitude.toFixed(6)+','+p.coords.longitude.toFixed(6);autoKm(i);omodal()},()=>toast('Lokasi tidak bisa diakses di tampilan ini. Buka halaman lewat browser HP atau pakai Tempel link.'),{enableHighAccuracy:true,timeout:15000})}
+async function mapPaste(i){try{const t=(await navigator.clipboard.readText()).trim();if(!/https?:\/\/|^-?\d+\.\d+\s*,/.test(t))return toast('Clipboard tidak berisi link atau koordinat map');F.drops[i].map=t;autoKm(i);omodal()}catch(e){toast('Clipboard tidak bisa dibaca. Tempel manual di kolom link.')}}
+let SX=0;function swS(e){SX=e.touches[0].clientX}
+function swE(e,el){const dx=e.changedTouches[0].clientX-SX,w=el.closest('.swr');if(dx<-50){document.querySelectorAll('.swr.open').forEach(x=>x.classList.remove('open'));w.classList.add('open')}else if(dx>40)w.classList.remove('open')}
+function tick(){document.querySelectorAll('[data-cd]').forEach(e=>{const ms=new Date(e.dataset.cd)-Date.now(),a=Math.abs(ms),h=Math.floor(a/36e5),m=Math.floor(a%36e5/6e4),t=h>=24?Math.floor(h/24)+' hari '+h%24+'j':h+'j '+m+'m';e.textContent=ms<0?'⚠️ Terlambat '+t:'⏱️ '+t+' lagi';e.style.color=ms<0?'var(--bad)':''})}
+setInterval(tick,30000);const _r=render;render=function(){_r();tick()};
+function mNav(on){const n=new Date(),c=DM||n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'),y=+c.slice(0,4),m=+c.slice(5)-1;return `<div class="card"><div class="row sp"><button class="g sm" onclick="mGo(-1)">‹</button><b style="cursor:pointer" onclick="MO=!MO;render()">${BLNF[m]} ${y} ${MO?'▴':'▾'}</b><button class="g sm" onclick="mGo(1)">›</button></div>${MO?`<div class="row" style="margin-top:8px;gap:6px">${BLN.map((b,i)=>`<span class="chip ${on&&i==m?'on':''}" onclick="mSet(${i})">${b}</span>`).join('')}</div>`:''}</div>`}
+function mGo(d){const n=new Date(),c=DM||n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');let y=+c.slice(0,4),m=+c.slice(5)-1+d;if(m<0){m=11;y--}if(m>11){m=0;y++}DM=y+'-'+String(m+1).padStart(2,'0');R='pick';render()}
+function mSet(i){const n=new Date(),y=DM?DM.slice(0,4):n.getFullYear();DM=y+'-'+String(i+1).padStart(2,'0');R='pick';MO=false;render()}
+function tripView(){const n=new Date(),cur=DM||n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'),ds=[...new Set(DB.orders.filter(o=>o.status!='Cancel'&&o.tgl.slice(0,7)==cur).map(o=>o.tgl))].sort().reverse(),T=(ic,t,v)=>`<div class="tile"><span class="ti">${ic}</span><small>${t}</small><b>${v}</b></div>`;
+const km=ds.reduce((s,d)=>s+num((DB.trips[d]||{}).km),0),md=ds.reduce((s,d)=>s+trM(DB.trips[d]||{}),0),rv=ds.reduce((s,d)=>s+dayRev(d),0);
+return mNav(true)+`<div class="tiles" style="margin:0 0 12px">${T('🧭','Total trip',ds.length+' hari · '+km.toFixed(1)+' km')}${T('💸','Modal bulan ini',rp(md))}${T('💰','Pendapatan',rp(rv))}${T('🧮','Net profit',rp(rv-md))}</div>`+(ds.map((d,i)=>trCard(d,i+1)).join('')||'<p class="mut">Belum ada order pengantaran pada bulan ini.</p>')}
+function trCard(d,n){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:''}),os=DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel'),rev=dayRev(d),m=trM(t),hr=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date(d+'T00:00:00').getDay()];
+return `<div class="card"><div class="row sp"><b>${n}. ${hr}, ${fmtD(d)}</b><span class="bb b1">${os.length} order · ${os.reduce((s,o)=>s+o.drops.length,0)} tujuan</span></div><label>Total trip (KM)</label><input type="number" step="0.1" inputmode="decimal" value="${esc(t.km)}" oninput="trSet('${d}','km',this.value)"><label>Kendaraan</label><div class="row">${['Bensin','Listrik'].map(v=>`<span class="chip ${t.veh==v?'on':''}" onclick="trSet('${d}','veh','${v}',1)">${v=='Bensin'?'⛽':'🔋'} ${v}</span>`).join('')}</div>${t.veh=='Listrik'?`<label>Tarif listrik per KM (Rp)</label><input inputmode="numeric" value="${fmtN(t.rate===''||t.rate==null?2665:t.rate)}" oninput="fmtNum(this);trSet('${d}','rate',rawN(this.value))">`:`<p class="mut" style="margin:6px 0 0">Tarif bensin tetap Rp 10.000 / KM</p>`}<div class="sum"><div><span>Pendapatan hari ini</span><b>${rp(rev)}</b></div><div><span>Modal harian</span><b id="trm${d}">− ${rp(m)}</b></div><div><span>Net profit</span><b id="trn${d}">${rp(rev-m)}</b></div></div></div>`}
+function trSet(d,k,v,re){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:''});t[k]=v;save();if(re)return render();const r=dayRev(d),m=trM(t);$('#trm'+d).textContent='− '+rp(m);$('#trn'+d).textContent=rp(r-m)}
+let AG={s:'old',m:'day',d1:'',d2:'',m1:'',m2:'',y1:'',y2:'',open:0,c:'all',q:''};
+const agT=x=>x.d>=30?Math.floor(x.d/30)+' bln '+(x.d%30)+' hr':x.d>=1?x.d+' hari':Math.floor(x.h)+' jam';
+function agIn(d){const f=AG;if(f.m=='day'){const a=parseD(f.d1),b=parseD(f.d2)||a;return !((a&&d<a)||(b&&d>b))}const mo=f.m=='month',k=mo?d.slice(0,7):d.slice(0,4),a=mo?f.m1:f.y1,b=(mo?f.m2:f.y2)||a;return !((a&&k<a)||(b&&k>b))}
+function agF(){const t=Date.now(),q=AG.q.toLowerCase();return DB.orders.filter(o=>o.status=='Terkirim'&&o.bayar!='Lunas').map(o=>{const at=o.kirimAt?new Date(o.kirimAt):new Date(o.tgl+'T'+(o.jTerima||o.jAntar||'12:00')),h=Math.max(0,(t-at)/36e5);return{o:o,at:at,h:h,d:Math.floor(h/24),amt:calc(o).net}}).filter(x=>agIn(x.o.tgl)&&(AG.c=='all'||(AG.c=='u'?x.d<=30:x.d>30))&&(!q||(vend(x.o.vid)?.nama||'').toLowerCase().includes(q)||x.o.drops.some(d=>(d.nama||'').toLowerCase().includes(q)))).sort(AG.s=='new'?(a,b)=>b.at-a.at:(a,b)=>a.at-b.at)}
+function dfPanel(f,nm){const act=f.d1||f.d2||f.m1||f.m2||f.y1||f.y2;let h=`<div class="row"><button class="g sm" onclick="${nm}.open=!${nm}.open;render()">📅 Filter tanggal${act?' · aktif':''}</button>${act?`<button class="g sm" onclick="${nm}.d1=${nm}.d2=${nm}.m1=${nm}.m2=${nm}.y1=${nm}.y2='';render()">Reset</button>`:''}</div>`;if(!f.open)return h;
+const chips=[['day','Hari'],['month','Bulan'],['year','Tahun']].map(([k,t])=>`<span class="chip ${f.m==k?'on':''}" onclick="${nm}.m='${k}';render()">${t}</span>`).join(''),ys=[...new Set(DB.orders.map(o=>o.tgl.slice(0,4)))].sort();let a,b;
+if(f.m=='year'){const x=(id,l,v)=>`<div><label>${l}</label><select onchange="${nm}.${id}=this.value;render()"><option value="">Pilih</option>${ys.map(y=>`<option ${v==y?'selected':''}>${y}</option>`).join('')}</select></div>`;a=x('y1','Dari tahun',f.y1);b=x('y2','Sampai tahun',f.y2)}
+else{const mo=f.m=='month',k1=mo?'m1':'d1',k2=mo?'m2':'d2',x=(id,l,v)=>`<div><label>${l}</label><input type="${mo?'month':'date'}" value="${esc(v)}" onchange="${nm}.${id}=this.value;render()"></div>`;a=x(k1,'Dari',f[k1]);b=x(k2,'Sampai',f[k2])}
+return h+`<div class="card" style="margin-top:8px"><div class="row">${chips}</div><div class="grid">${a}${b}</div><p class="mut" style="margin:8px 0 0">Kosongkan “sampai” untuk satu hari / bulan / tahun saja.</p></div>`}
+function agingView(){const ch=(cur,k,t,v)=>`<span class="chip ${cur==k?'on':''}" onclick="${v}='${k}';render()">${t}</span>`;
+return `<div class="mut" style="margin:0 0 10px;font-size:13px">⏳ <b>Umur tagihan sejak pengantaran</b> — order terkirim yang belum dibayar vendor. Makin tua, makin perlu ditagih.</div>${agSortRow()}<div class="row" style="margin-bottom:10px">${ch(AG.c,'all','Semua','AG.c')}${ch(AG.c,'u','🟠 ≤ 1 bulan','AG.c')}${ch(AG.c,'o','🔴 > 1 bulan','AG.c')}</div><div class="row" style="margin-bottom:10px"><input list="agdl" style="flex:1" placeholder="Cari vendor / pemesan…" value="${esc(AG.q)}" oninput="AG.q=this.value;agr()"><datalist id="agdl">${[...DB.vendors].sort((a,b)=>a.nama.localeCompare(b.nama,'id')).map(v=>`<option value="${esc(v.nama)}"></option>`).join('')}</datalist><button class="g sm" onclick="agCopy()">Salin rekap</button></div><div id="agb">${agBody()}</div>`}
+function agr(){$('#agb').innerHTML=agBody()}
+function agBody(){const L=agF(),T=(ic,t,v)=>`<div class="tile"><span class="ti">${ic}</span><small>${t}</small><b>${v}</b></div>`,sm=A=>A.reduce((s,x)=>s+x.amt,0),u=L.filter(x=>x.d<=30),r=L.filter(x=>x.d>30),gv={};L.forEach(x=>{const k=vend(x.o.vid)?.nama||'-';gv[k]=(gv[k]||0)+x.amt});const vs=Object.entries(gv).sort((a,b)=>b[1]-a[1]).slice(0,5),mx=vs.length?vs[0][1]:1;
+return `<div class="tiles" style="margin:0 0 12px">${B4('💰','Total outstanding / order',rp(sm(L)),L.length+' order')}${B4('🕰️','Umur tagihan (sejak antar)',L.length?'Terlama : '+Math.max(...L.map(x=>x.d))+' hr':'-',L.length?'Rata-rata : '+(L.reduce((s,x)=>s+x.h,0)/L.length/24).toFixed(1)+' hr':'-')}${B3('🟠','&lt; 1 bulan',sm(u),u.length)}${B3('🔴','&gt; 1 bulan',sm(r),r.length)}</div>${vs.length?`<div class="card"><b>🏪 Outstanding per vendor</b>${vs.map(([k,v])=>`<div class="hb"><span class="w">${esc(k)}</span><div><i style="width:${v/mx*100}%;background:var(--warn)"></i></div><b>${rp(v)}</b></div>`).join('')}</div>`:''}${L.map((x,i)=>agRow(x,i+1)).join('')||'<p class="mut">Tidak ada outstanding pada filter ini 🎉</p>'}`}
+function agCopy(){const L=agF();cpText('Rekap outstanding pengiriman\n'+L.map((x,i)=>(i+1)+'. '+(vend(x.o.vid)?.nama||'-')+' - '+fmtD(x.o.tgl)+' - '+rp(x.amt)+' - '+agT(x)).join('\n')+'\nTotal: '+rp(L.reduce((s,x)=>s+x.amt,0)))}
+function B3(ic,t,a,n){return `<div class='tile'><small>${ic} ${t}</small><b>${rp(a)}</b><small>Total : ${n} order</small></div>`}
+let TF={m:'month',d:'',a:'',b:''};
+function inTF(d){const f=TF;if(f.m=='day')return !f.d||d==f.d;if(f.m=='range')return !((f.a&&d<f.a)||(f.b&&d>f.b));const n=new Date(),c=DM||n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');return d.slice(0,7)==c}
+function B4(ic,t,a,b){return `<div class='tile'><small>${ic} ${t}</small><b>${a}</b><small>${b}</small></div>`}
+let MO=false;
+const CAL="<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>";
+function tripAddPick(){const e=$('#tadd');try{e.showPicker()}catch(x){e.click()}}
+function rangeBar(){const chips=[['day','Hari ini'],['yday','Kemarin'],['tmr','Besok'],['week','Minggu ini'],['month','Bulan ini'],['year','Tahun ini'],['all','All time']].map(([k,t])=>`<span class="chip pc ${R==k||(k=='month'&&R=='pick')?'on':''}" onclick="R='${k}';DM='';DR={a:'',b:''};render()">${t}</span>`).join('');
+return `<div class="row" style="margin-bottom:10px;gap:5px">${chips}</div>${R=='month'||R=='pick'?mNav(R=='pick'):''}<div class="row" style="margin:0 0 10px;flex-wrap:nowrap"><span style="display:flex;color:var(--ink)">${CAL}</span><input type="date" style="flex:1;min-width:0;padding:8px 4px;font-size:13px" value="${esc(DR.a)}" onchange="DR.a=this.value;R='range';DM='';render()"><span class="mut">s/d</span><input type="date" style="flex:1;min-width:0;padding:8px 4px;font-size:13px" value="${esc(DR.b)}" onchange="DR.b=this.value;R='range';DM='';render()"></div>`}
+function tripView3(){const T=(ic,t,v)=>`<div class='tile'><small><span style='font-size:15px'>${ic}</span> ${t}</small><b>${v}</b></div>`,
+ds=[...new Set([...DB.orders.filter(o=>o.status!='Cancel').map(o=>o.tgl),...Object.keys(DB.trips).filter(d=>{const t=DB.trips[d];return t.manual||num(t.km)>0||num(t.charge)>0})])].filter(d=>inRange(d)).sort().reverse(),
+km=ds.reduce((s,d)=>s+num((DB.trips[d]||{}).km),0),cs=ds.reduce((s,d)=>s+trM(DB.trips[d]||{}),0),rv=ds.reduce((s,d)=>s+dayRev(d),0);
+return rangeBar()+`<div style='margin-bottom:12px'><input type='date' id='tadd' style='position:absolute;opacity:0;pointer-events:none;width:1px' onchange='tripAdd(this.value)'><button class='s' style='width:100%' onclick='tripAddPick()'>Pilih tanggal</button></div><div class='tiles' style='margin:0 0 12px'>${T('🧭','Total trip',ds.length+' hari · '+km.toFixed(1)+' km')}${T('💸','Cost',rp(cs))}${T('💰','Pendapatan',rp(rv))}${T('📈','Nett profit',rp(rv-cs))}</div>`+(ds.map((d,i)=>trCard3(d,i+1)).join('')||'<p class="mut">Belum ada trip pada periode ini.</p>')}
+function trCard3(d,n){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:'',charge:''}),v0=t.veh||'Bensin',os=DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel'),rev=dayRev(d),c=trM(t),hr=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date(d+'T00:00:00').getDay()],
+info=v0=='Listrik'?`<label>Biaya charge (Rp)</label><input id='tc${d}' inputmode='numeric' value='${fmtN(t.charge)}' oninput='fmtNum(this)'>`:`<p class='mut' style='margin:6px 0 0'>1 liter = 10 km · ${(num(t.km)/10).toFixed(1)} liter × Rp ${v0=='Diesel'?'6.800':'10.000'}</p>`;
+return `<div class='card'><div class='row sp'><b>${n}. ${hr}, ${fmtD(d)}</b><span class='bb b1'>${os.length} order · ${os.reduce((s,o)=>s+o.drops.length,0)} tujuan</span></div><label>Total trip (KM) <span class='mut'>· KM order hari ini: ${os.reduce((s,o)=>s+calc(o).km,0).toFixed(1)}</span></label><input id='tk${d}' type='number' step='0.1' inputmode='decimal' value='${esc(t.km)}'><label>Kendaraan</label><div class='row'>${[['Bensin','⛽'],['Diesel','🛢️'],['Listrik','🔋']].map(([v,ic])=>`<span class='chip ${v0==v?'on':''}' onclick="trSet2('${d}','veh','${v}',1)">${ic} ${v}</span>`).join('')}</div>${info}<button class='sm' style='margin-top:10px;width:100%' onclick="trSave3('${d}')">Simpan</button><div class='sum'><div><span>Pendapatan</span><b>${rp(rev)}</b></div><div><span>Cost ${v0}</span><b id='trc${d}'>− ${rp(c)}</b></div><div style="border-top:1px dashed var(--line);margin:6px 0"></div><div><span>Nett profit</span><b id='trn${d}'>${rp(rev-c)}</b></div></div></div>`}
+function trAsk3(d){const t=DB.trips[d],km=$('#tk'+d).value,ce=$('#tc'+d),ch=ce?rawN(ce.value):t.charge,tmp={km:km,veh:t.veh||'Bensin',charge:ch};askC('Simpan trip '+fmtD(d)+'?<br>Total '+(km||0)+' km'+(tmp.veh=='Listrik'?'<br>Biaya charge '+rp(num(ch)):'')+'<br>Cost: '+rp(trM(tmp)),()=>{t.km=km;t.charge=ch;save();render()},'OK')}
+function agSortRow(){const p=dfPanel(AG,'AG'),i=p.indexOf('</div>'),btn=p.slice(0,i).replace('<div class="row">',''),rest=p.slice(i+6),c=(k,t)=>`<span class="chip ${AG.s==k?'on':''}" style="flex:none;white-space:nowrap;padding:6px 9px;font-size:12px" onclick="AG.s='${k}';render()">${t}</span>`;return `<div class="row" style="margin:0 0 10px;gap:6px">${btn}${c('new','Terbaru → terlama')}${c('old','Terlama → terbaru')}</div>${rest}`}
+try{const u=JSON.parse(localStorage.getItem('ssdt_test_ui')||'null');if(u){R=u.R||R;DM=u.DM||'';DR=u.DR||DR;V=u.V||V}}catch(e){}
+const _r2=render;render=function(){_r2();try{localStorage.setItem('ssdt_test_ui',JSON.stringify({R:R,DM:DM,DR:DR,V:V}))}catch(e){}};
+function tripAdd(d){if(!d)return;R='range';DR={a:d,b:d};DM='';render()}
+function tripMake(d){DB.trips[d]=DB.trips[d]||{km:'',veh:'Bensin',rate:'',charge:''};DB.trips[d].manual=1;save();render()}
+function trDel(d){askC('Hapus trip tanggal '+fmtD(d)+'?',()=>{delete DB.trips[d];save();render()})}
+const _tc=trCard3;trCard3=function(d,n){const h=_tc(d,n);if(DB.orders.some(o=>o.tgl==d&&o.status!='Cancel'))return h;return h.slice(0,-6)+`<div class='row' style='margin-top:8px'><span class='bb b6'>Tanpa order di tanggal ini</span><button class='d sm' onclick="trDel('${d}')">Hapus trip</button></div></div>`};
+const _tv=tripView3;tripView3=function(){let h=_tv();const a=DR.a;if(R=='range'&&a&&a==DR.b&&!DB.orders.some(o=>o.tgl==a&&o.status!='Cancel')&&!DB.trips[a])h+=`<button class='g' style='width:100%' onclick="tripMake('${a}')">+ Buat trip untuk ${fmtD(a)} (tanpa order)</button>`;return h};
+Object.keys(DB.trips).forEach(d=>{const t=DB.trips[d];if(!num(t.km)&&!num(t.charge)&&!DB.orders.some(o=>o.tgl==d&&o.status!='Cancel'))delete DB.trips[d]});save();
+function payPick(s){if(s=='Lunas'){if(!(num(F.nom)>0))return payAsk(F,omodal);F.bayar='Lunas';if(!F.tglBayar)F.tglBayar=today();omodal()}else{F.bayar='Outstanding';F.real='';F.tglBayar='';omodal()}}
+function bkDl(){const b=new Blob([bkData()],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ss-delivery-backup-'+today()+'.json';a.click()}
+DB.orders.forEach(o=>{delete o.notaTol;delete o.notaPark;delete o.fPick;delete o.fDel});save();
+function setTgl(v){F.tglBayar=v;if(v)F.bayar='Lunas';omodal()}
+function payAsk(o,cb){window.payCtx={o:o,cb:cb};const c=calc(o),d=document.createElement('div');d.className='modal';d.id='cf';d.style.zIndex=40;d.style.alignItems='center';d.innerHTML=`<div class="card" style="width:100%;max-width:340px;margin:16px"><b>Transfer dari vendor</b><label>Gross vendor (Rp)</label><input id="payv" inputmode="numeric" value="${fmtN(num(o.nom)>0?o.nom:Math.round(c.net))}" oninput="fmtNum(this)"><label>Tanggal transfer</label><input id="payd" type="date" value="${o.tglBayar||today()}"><div class="row" style="margin-top:10px"><button class="s" onclick="payOk()">Simpan</button><button class="g" onclick="$('#cf').remove()">Batal</button></div></div>`;document.body.appendChild(d)}
+function payOk(){const v=rawN($('#payv').value);if(!v)return toast('Isi nilai akhir');const x=payCtx.o;x.bayar='Lunas';x.nom=v;x.tglBayar=$('#payd').value||today();$('#cf').remove();payCtx.cb()}
+DB.orders.forEach(o=>{if(o.nomMig)return;const v=vend(o.vid),rate=o.rate!==''&&o.rate!=null?num(o.rate):(v?v.rate:5000),tp=num(o.tol)+num(o.park);
+if(!(num(o.nom)>0)){if(o.bayar==='Lunas'&&num(o.real)>0)o.nom=String(num(o.real));else if(num(o.kmAsal)>0){o.nom=String(Math.round(Math.max(50000,num(o.kmAsal)*rate)*.9+tp));if(o.drops&&o.drops[0]&&!o.drops.some(d=>num(d.km)>0))o.drops[0].km=String(o.kmAsal)}}
+o.mode='nom';o.nomMig=1});save();
+let PY='';
+const avgReal=ok=>{const c=ok.map(o=>calc(o)).filter(c=>c.has);return c.length?rp(c.reduce((s,x)=>s+x.fin,0)/c.length):'-'};
+function pctProfit(ok){const ti=ok.reduce((s,o)=>s+calc(o).val,0),tc=totalCost(ok);return ti>0?((ti-tc)/ti*100).toFixed(1)+'%':'-'}
+function pmSel(){const y=PM?PM.slice(0,4):(PY||String(new Date().getFullYear())),m=PM?PM.slice(5):'',ys=[...new Set([...DB.orders.map(o=>o.tgl.slice(0,4)),y])].sort(),st='width:auto;min-height:36px;padding:4px 8px;font-weight:600;color:var(--ink)';
+return `<span class="row" style="gap:6px;flex-wrap:nowrap"><select style="${st}" onchange="pmSet(this.value,'${y}')"><option value="">Semua</option>${BLNF.map((b,i)=>{const v=String(i+1).padStart(2,'0');return `<option value="${v}" ${m==v?'selected':''}>${b.slice(0,3)}</option>`}).join('')}</select><select style="${st}" onchange="pmSet('${m}',this.value)">${ys.map(a=>`<option ${a==y?'selected':''}>${a}</option>`).join('')}</select></span>`}
+function pmSet(m,y){PY=y;PM=m?y+'-'+m:'';render()}
+const _go=go;go=function(v){if(v=='dash'&&R=='tmr')R='day';_go(v)};
+DB.contacts=DB.contacts||{Ira:'',Laser:''};
+function agWa(id){const o=DB.orders.find(z=>z.id==id),src=o.src||'Ira',nmr=(DB.contacts||{})[src];if(!wa(nmr))return askNum(src,id);
+const x=agF().find(z=>z.o.id==id)||{o:o,h:0,d:0,amt:calc(o).net},v=vend(o.vid),msg='Halo '+picName(src)+', mengingatkan tagihan pengiriman '+(v?v.nama:'')+' tanggal '+fmtD(o.tgl)+' sebesar '+rp(x.amt)+' yang belum ditransfer ('+agT(x)+'). Mohon dibantu follow up. Terima kasih.';
+window.open(wa(nmr)+'?text='+encodeURIComponent(msg),'_blank')}
+function askNum(src,id){const d=document.createElement('div');d.className='modal';d.id='cf';d.style.zIndex=40;d.style.alignItems='center';d.innerHTML=`<div class="card" style="width:100%;max-width:340px;margin:16px"><b>Nomor WA ${esc(src)}</b><label>Isi sekali, tersimpan untuk seterusnya</label><input id="cnum" inputmode="tel" placeholder="08xxxxxxxxxx"><div class="row" style="margin-top:10px"><button class="s" onclick="cSave('${src}','${id}')">Simpan &amp; buka WA</button><button class="g" onclick="$('#cf').remove()">Batal</button></div></div>`;document.body.appendChild(d)}
+function agPaid(id){const o=DB.orders.find(x=>x.id==id);payAsk(o,()=>{save();render()})}
+function bkContacts(){DB.contacts={Ira:$('#cIra').value.trim(),Laser:$('#cLaser').value.trim()};save();toast('Kontak tersimpan')}
+const picName=s=>(DB.picNames||{})[s]||s;
+DB.contacts=DB.contacts||{};DB.picNames=DB.picNames||{Ira:'Ira',Laser:'Laser'};
+
+save();
+function picCard(){const c=DB.contacts||{};return `<div class="card"><div class="row sp"><b>Cake Delivery PIC</b><button class="g" style="min-width:48px;height:48px;padding:0;font-size:28px;line-height:1;font-weight:400" onclick="picAdd()" aria-label="Tambah PIC">+</button></div><div class="mut" style="margin:2px 0 6px">Sumber order. Nomornya dipakai untuk follow-up WA di menu Aging.</div>${(DB.pics||['Ira','Laser']).map(k=>`<div class="row sp" style="margin:8px 0"><span><b>${esc(picName(k))}</b><br><span class="mut">${esc(c[k]||'-')}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap">${waBtn(c[k])}<button class="g sm" onclick="picEdit('${k}')">Ubah</button></span></div>`).join('')}</div>`}
+function picSave(k){const t=$('#pt').value.trim(),nm=$('#pn').value.trim()||k;if(t&&!wa(t))return toast('Nomor tidak valid');DB.contacts=DB.contacts||{};DB.picNames=DB.picNames||{};DB.contacts[k]=t;DB.picNames[k]=nm;save();closeM();render()}
+function bkOpen(){modal(`<h3 style="margin:0 0 8px">Backup &amp; Restore</h3><p class="mut">Data tersimpan di HP/browser ini saja. Simpan backup secara berkala. Nomor Ira dan Laser ikut tersimpan.</p><div class="row"><button onclick="cpText(bkData())">Salin backup</button><button class="g" onclick="bkDl()">Download file</button></div><label>Restore: tempel teks backup di sini</label><textarea id="bkt" rows="4" placeholder="Tempel teks backup…"></textarea><div class="row" style="margin-top:8px"><button class="s" onclick="bkRestore()">Pulihkan data</button><button class="g" onclick="closeM()">Tutup</button></div>`)}
+function agMsg(o){const c=calc(o),v=vend(o.vid),nm=o.drops.map(d=>d.nama).filter(Boolean).join(' & ')||0,z=x=>num(x)>0?fmtN(String(Math.round(num(x)))):0,km=Math.round(c.km*10)/10;return ['Tanggal pemesanan : '+fmtD(o.tgl),'Nama vendor : '+(v?v.nama:0),'Nama pemesan : '+nm,'Tol : '+z(o.tol),'Parkir : '+z(o.park),'KM : '+(km>0?km:0)].join('\n')}
+function agRow(x,n){const o=x.o,v=vend(o.vid),red=x.d>30,nm=o.drops.map(d=>d.nama).filter(Boolean).join(' & ')||'-',src=o.src||'Ira',tel=(DB.contacts||{})[src],bst='background:#25d366;color:#fff;display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;border:0',
+wab=wa(tel)?`<a style="${bst}" target="_blank" rel="noopener" href="${wa(tel)}?text=${encodeURIComponent(agMsg(o))}">WA ${esc(picName(src))}</a>`:`<button class="sm" style="background:#25d366;color:#fff" onclick="askNum('${src}','${o.id}')">WA ${esc(picName(src))}</button>`;
+return `<div class="card" style="border-left:5px solid ${red?'var(--bad)':'var(--warn)'}"><div class="row sp"><b>${n}. ${esc(v?v.nama:'-')}</b><span class="tag ${red?'t3':'t1'}">${red?'🔴':'🟠'} ${agT(x)}</span></div><div class="row" style="gap:6px;margin:6px 0"><span class="bb b3">👤 ${esc(nm)}</span><span class="bb b1">📅 ${fmtD(o.tgl)}</span><span class="bb b4">💰 ${rp(x.amt)}</span></div><div class="row">${wab}<span style="flex:1"></span><button class="s sm" onclick="agPaid('${o.id}')">Tandai lunas</button><button class="g sm" onclick="editO('${o.id}')">Buka</button></div></div>`}
+function cSave(src,id){const v=$('#cnum').value.trim();if(!wa(v))return toast('Nomor tidak valid');DB.contacts=DB.contacts||{};DB.contacts[src]=v;save();$('#cf').remove();render();toast('Nomor tersimpan. Tekan tombol WA lagi.')}
+let SF='all',PF='all';
+function pfSel(nm){const cur=nm=='SF'?SF:PF;return `<select style="width:auto;min-height:32px;padding:2px 8px;font-size:12px;font-weight:600;color:var(--ink);flex:none" onchange="${nm}=this.value;render()"><option value="all" ${cur!='lunas'?'selected':''}>Lunas + Outstanding</option><option value="lunas" ${cur=='lunas'?'selected':''}>Lunas saja</option></select>`}
+function vItems(q){q=(q||'').toLowerCase().trim();const A=[...DB.vendors].sort((a,b)=>a.nama.localeCompare(b.nama,'id')).filter(v=>!q||(v.nama+' '+v.alamat).toLowerCase().includes(q));return A.length?A.map(v=>`<div class="vi" onclick="pickV('${v.id}')"><b>${esc(v.nama)}</b><div class="mut" style="font-size:12px">${esc(v.alamat)}</div></div>`).join(''):'<div class="vi mut">Vendor tidak ditemukan</div>'}
+function vOpen(el){const l=$('#vlist');if(!l)return;l.innerHTML=vItems('');l.style.display='block';try{el.select()}catch(e){}}
+function vFilter(q){const l=$('#vlist');if(!l)return;l.innerHTML=vItems(q);l.style.display='block'}
+document.addEventListener('click',e=>{const l=$('#vlist');if(l&&!e.target.closest('#vwrap'))l.style.display='none'});
+DB.pics=DB.pics||['Ira','Laser'];Object.keys(DB.contacts||{}).forEach(k=>{if(!DB.pics.includes(k))DB.pics.push(k)});
+function picAdd(){modal(`<h3 style="margin:0 0 8px">Tambah PIC baru</h3><label>Nama</label><input id="pn" autocomplete="off" placeholder="Nama PIC" oninput="tc(this)"><label>No. HP / WhatsApp</label><input id="pt" inputmode="tel" placeholder="+62…"><div class="row" style="margin-top:14px"><button onclick="picAddSave()">Simpan</button><button class="g" onclick="closeM()">Batal</button></div>`)}
+function picAddSave(){const nm=$('#pn').value.trim(),t=$('#pt').value.trim();if(!nm)return toast('Isi nama PIC');if(!wa(t))return toast('Isi nomor WhatsApp yang valid');if(DB.pics.some(k=>k.toLowerCase()==nm.toLowerCase()))return toast('Nama PIC sudah ada');DB.pics.push(nm);DB.contacts=DB.contacts||{};DB.picNames=DB.picNames||{};DB.contacts[nm]=t;DB.picNames[nm]=nm;save();closeM();render();toast('PIC ditambahkan')}
+function picDel(k){askC('Hapus PIC '+picName(k)+'?',()=>{DB.pics=DB.pics.filter(x=>x!=k);delete DB.contacts[k];delete DB.picNames[k];save();closeM();render()})}
+function picEdit(k){const c=DB.contacts||{},used=DB.orders.some(o=>o.src==k);modal(`<h3 style="margin:0 0 8px">Ubah PIC ${esc(k)}</h3><label>Nama</label><input id="pn" value="${esc(picName(k))}"><label>No. HP / WhatsApp</label><input id="pt" inputmode="tel" value="${esc(c[k]||'')}" placeholder="+62…"><div class="row" style="margin-top:14px"><button onclick="picSave('${k}')">Simpan</button><button class="g" onclick="closeM()">Batal</button>${!used&&DB.pics.length>1?`<button class="d" onclick="picDel('${k}')">Hapus PIC</button>`:''}</div>${used?'<p class="mut">PIC ini sudah dipakai di order, jadi tidak bisa dihapus.</p>':''}`)}
+function bkData(){return JSON.stringify({app:'ss-delivery-tracker',v:1,at:new Date().toISOString(),vendors:DB.vendors,orders:DB.orders,trips:DB.trips,contacts:DB.contacts,picNames:DB.picNames,pics:DB.pics})}
+function bkRestore(){let d;try{d=JSON.parse($('#bkt').value)}catch(e){return toast('Teks backup tidak valid')}if(!d||!Array.isArray(d.vendors)||!Array.isArray(d.orders))return toast('Format backup tidak dikenali');askC('Pulihkan data? '+d.orders.length+' order dan '+d.vendors.length+' vendor akan MENGGANTI data saat ini.',()=>{DB.vendors=d.vendors;DB.orders=d.orders;DB.trips=d.trips||{};DB.contacts=d.contacts||DB.contacts;DB.picNames=d.picNames||DB.picNames;DB.pics=d.pics||DB.pics;save();closeM();render();toast('Data dipulihkan')},'Ya, pulihkan')}
+const pad2=n=>String(n).padStart(2,'0'),isoD=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+function wkStart(s){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()-((d.getDay()+6)%7));return isoD(d)}
+function wkAdd(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return isoD(d)}
+function wkList(pm){let a,b;if(pm){a=wkStart(pm+'-01');b=wkStart(isoD(new Date(+pm.slice(0,4),+pm.slice(5),0)))}else{b=wkStart(today());a=wkAdd(b,-77)}const L=[];for(let w=a;w<=b;w=wkAdd(w,7))L.push(w);return L}
+function wkLab(w){const d=new Date(w+'T00:00:00');return d.getDate()+' '+BLN[d.getMonth()]}
+function wkRange(w){return fmtD(w).slice(0,5)+' - '+fmtD(wkAdd(w,6))}
+function bestWeek(live){const L=PM?wkList(PM):null,m={};live.filter(o=>PF!='lunas'||o.bayar=='Lunas').forEach(o=>{const k='W:'+wkStart(o.tgl);if(L&&!L.includes(k.slice(2)))return;m[k]=m[k]||{n:0,r:0};m[k].n++;m[k].r+=calc(o).val});return Object.entries(m).sort((a,b)=>b[1].r-a[1].r)[0]}
+const _fk=fmtK;fmtK=function(k){return k.startsWith('W:')?wkRange(k.slice(2)):_fk(k)};
+function vParse(txt){const T=String(txt||'').replace(/\r/g,'').replace(/[*~]/g,'').replace(/(^|\s)_([^_\n]+)_(?=\s|$)/g,'$1$2');
+const raw=[],out=[];T.split(/\n\s*\n|\n(?=\s*\d+[.)]\s+\S)/).forEach(b=>{let cur=[];b.split('\n').forEach(l=>{if(l.split('|').length>2){if(cur.length){raw.push(cur.join('\n'));cur=[]}raw.push(l)}else cur.push(l)});if(cur.length)raw.push(cur.join('\n'))});const blocks=raw.map(b=>b.trim()).filter(Boolean);
+blocks.forEach(b=>{let lines=[];b.split('\n').forEach(l=>{l=l.trim();if(!l)return;if(l.split('|').length>2){l.split('|').forEach(q=>{q=q.trim();if(q)lines.push(q)})}else lines.push(l)});
+if(!lines.length)return;lines[0]=lines[0].replace(/^\s*\d+[.)]\s*/,'');
+const v={nama:'',pic:'',tel:'',alamat:'',rate:5000,map:''};let last='';
+lines.forEach((l,idx)=>{let m;
+if(m=l.match(/^nama(?:\s*vendor)?\s*[:\-]\s*(.+)/i)){v.nama=m[1].trim();last='';return}
+if(m=l.match(/^pic\s*[:\-]\s*(.+)/i)){v.pic=m[1].trim();last='';return}
+if(m=l.match(/^(?:telp|tlp|telepon|no\.?\s*hp|hp|wa|whatsapp|no\.?\s*wa)\s*[:\-]\s*(.+)/i)){const t=m[1].trim();v.tel=/\d/.test(t)?t.replace(/[^\d+]/g,''):'';last='';return}
+if(m=l.match(/^alamat\s*[:\-]\s*(.*)/i)){v.alamat=m[1].trim();last='alamat';return}
+if(m=l.match(/^(?:tarif|rate)(?:\s*(?:\/|per)?\s*km)?\s*[:\-]\s*(.+)/i)){const d=(m[1].match(/\d[\d.,]*/)||[])[0];if(d)v.rate=+d.replace(/[.,]/g,'');last='';return}
+if(m=l.match(/^(?:map|maps|link(?:\s*map)?|lokasi)\s*[:\-]\s*(\S+)/i)){v.map=m[1].trim();last='';return}
+if(/^https?:\/\//i.test(l)){v.map=l.split(/\s+/)[0];last='';return}
+if(!v.nama&&idx===0){v.nama=l.replace(/\s*[:\-]\s*$/,'');return}
+if(last==='alamat'){v.alamat+=(v.alamat?' ':'')+l}});
+if(v.nama)out.push(v)});return out}
+function vImpOpen(){modal(`<h3 style="margin:0 0 6px">Tambah vendor dari teks WhatsApp</h3><p class="mut" style="margin:0 0 6px">Tempel satu atau banyak vendor. Pisahkan dengan baris kosong atau nomor urut. Baris pertama tiap vendor adalah namanya.</p><textarea id="vit" rows="8" placeholder="1. Nama vendor&#10;PIC: ...&#10;Telp: 0812...&#10;Alamat: ...&#10;Tarif: Rp 5.000/km&#10;Map: https://maps...&#10;&#10;2. Vendor berikutnya&#10;..."></textarea><div class="row" style="margin-top:8px"><button onclick="vImpRead()">Baca teks</button><button class="g" onclick="vImpPaste()">Tempel dari clipboard</button><button class="g" onclick="closeM()">Batal</button></div><div id="vprev"></div>`)}
+async function vImpPaste(){try{$('#vit').value=await navigator.clipboard.readText();vImpRead()}catch(e){toast('Clipboard tidak bisa dibaca. Tempel manual di kolom.')}}
+function vImpRead(){const a=vParse($('#vit').value);window.vImp=a;const ex=new Set(DB.vendors.map(v=>v.nama.toLowerCase().trim()));
+$('#vprev').innerHTML=a.length?`<p class="mut" style="margin:10px 0 4px">${a.length} vendor terbaca. Centang yang mau ditambahkan:</p>`+a.map((v,i)=>{const dup=ex.has(v.nama.toLowerCase().trim());return `<label style="display:flex;gap:10px;align-items:flex-start;margin:8px 0;color:var(--ink);font-size:14px"><input type="checkbox" id="vc${i}" ${dup?'':'checked'} style="width:22px;min-height:22px;flex:none;margin-top:2px"><span><b>${esc(v.nama)}</b>${dup?' <span class="tag t3">sudah ada</span>':''}<br><span class="mut">${esc(v.tel||'-')} · ${rp(v.rate)}/km${v.pic?' · PIC '+esc(v.pic):''}${v.map?' · 📍 map':''}</span><br><span class="mut">${esc(v.alamat||'-')}</span></span></label>`}).join('')+`<div class="row" style="margin-top:10px"><button class="s" onclick="vImpGo()">Tambahkan vendor terpilih</button></div>`:'<p class="mut" style="margin-top:10px">Tidak ada vendor yang terbaca. Pastikan baris pertama tiap vendor adalah namanya.</p>'}
+function vImpGo(){const a=window.vImp||[];let n=0;a.forEach((v,i)=>{const c=$('#vc'+i);if(c&&c.checked){DB.vendors.push({id:uid(),nama:v.nama,pic:v.pic,tel:v.tel,alamat:v.alamat,rate:v.rate,map:v.map,mapMode:v.map?'link':'auto'});n++}});if(!n)return toast('Tidak ada vendor yang dicentang');save();closeM();render();toast(n+' vendor ditambahkan')}
+const vmapUrl=v=>v?mapL(v.nama+' '+v.alamat,v.mapMode!='auto'?v.map:''):'https://www.google.com/maps';
+const dmapUrl=d=>mapL(d.alamat,d.map);
+function mapLinks(o){const v=vend(o.vid),a=(u,t)=>`<a class="mp" href="${esc(u)}" target="_blank">${t}</a>`;return a(vmapUrl(v),'📍 Vendor')+o.drops.map((d,i)=>a(dmapUrl(d),'📍 Tujuan'+(o.drops.length>1?' '+(i+1):''))).join('')+a(dirLink(o),'🗺️ Semua')}
+function dirLink(o){const v=vend(o.vid),vc=v&&v.mapMode!='auto'?ll(v.map):null,vp=v?(vc?vc.join(','):(v.nama+' '+v.alamat)):'',pts=[vp,...o.drops.map(d=>{const c=ll(d.map);return c?c.join(','):d.alamat})].filter(Boolean);if(!pts.length)return 'https://www.google.com/maps';
+const dest=pts[pts.length-1],wp=pts.slice(0,-1);return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest)+(wp.length?'&waypoints='+encodeURIComponent(wp.join('|')):'')+'&travelmode=driving'}
+const waCust=(t,n)=>wa(t)?`<a class="wa" style="width:auto;height:36px;border-radius:99px;padding:0 12px;font-size:12.5px" href="${wa(t)}" target="_blank" aria-label="WhatsApp customer">WA Customer${n?' '+n:''}</a>`:'';
+const totalCost=ok=>trRange()+ok.reduce((s,o)=>s+num(o.tol)+num(o.park),0);
+const dayTP=d=>{const os=DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel');return{tol:os.reduce((s,o)=>s+num(o.tol),0),park:os.reduce((s,o)=>s+num(o.park),0)}};
+function trSet2(d,k,v,re){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:'',charge:''});t[k]=v;save();if(re)return render();const c=trM(t),x=dayTP(d),tc=c+x.tol+x.park,e=$('#trc'+d),a=$('#trt'+d),n=$('#trn'+d);if(e)e.textContent='- '+rp(c);if(a)a.textContent='- '+rp(tc);if(n)n.textContent=rp(dayRev(d)-tc)}
+trCard3=function(d,n){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:'',charge:''}),v0=t.veh||'Bensin',os=DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel'),rev=dayRev(d),c=trM(t),x=dayTP(d),tc=c+x.tol+x.park,hr=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date(d+'T00:00:00').getDay()],
+info=v0=='Listrik'?`<label>Biaya charge (Rp)</label><input id='tc${d}' inputmode='numeric' value='${fmtN(t.charge)}' oninput='fmtNum(this)'>`:`<p class='mut' style='margin:6px 0 0'>1 liter = 10 km · ${(num(t.km)/10).toFixed(1)} liter × Rp ${v0=='Diesel'?'6.800':'10.000'}</p>`,
+orphan=os.length?'':`<div class='row' style='margin-top:8px'><span class='bb b6'>Tanpa order di tanggal ini</span><button class='d sm' onclick="trDel('${d}')">Hapus trip</button></div>`;
+return `<div class='card'><div class='row sp'><b>${n}. ${hr}, ${fmtD(d)}</b><span class='bb b1'>${os.length} order · ${os.reduce((s,o)=>s+o.drops.length,0)} tujuan</span></div><label>Total trip (KM) <span class='mut'>· KM order hari ini: ${os.reduce((s,o)=>s+calc(o).km,0).toFixed(1)}</span></label><input id='tk${d}' type='number' step='0.1' inputmode='decimal' value='${esc(t.km)}'><label>Kendaraan</label><div class='row'>${[['Bensin','⛽'],['Diesel','🛢️'],['Listrik','🔋']].map(([v,ic])=>`<span class='chip ${v0==v?'on':''}' onclick="trSet2('${d}','veh','${v}',1)">${ic} ${v}</span>`).join('')}</div>${info}<button class='sm' style='margin-top:10px;width:100%' onclick="trSave3('${d}')">Simpan</button><div class='sum'><div><span>Pendapatan</span><b>${rp(rev)}</b></div><div><span>Cost ${v0}</span><b id='trc${d}'>- ${rp(c)}</b></div><div><span>Cost tol</span><b>- ${rp(x.tol)}</b></div><div><span>Cost parkir</span><b>- ${rp(x.park)}</b></div><div style="border-top:1px dashed var(--line);margin:6px 0"></div><div><span>Total cost</span><b id='trt${d}'>- ${rp(tc)}</b></div><div style="border-top:1px dashed var(--line);margin:6px 0"></div><div><span>Nett profit</span><b id='trn${d}'>${rp(rev-tc)}</b></div></div>${orphan}</div>`};
+tripView3=function(){const ds=[...new Set([...DB.orders.filter(o=>o.status!='Cancel').map(o=>o.tgl),...Object.keys(DB.trips).filter(d=>{const t=DB.trips[d];return t.manual||num(t.km)>0||num(t.charge)>0})])].filter(d=>inRange(d)).sort().reverse(),
+km=ds.reduce((s,d)=>s+num((DB.trips[d]||{}).km),0),ct=ds.reduce((s,d)=>s+trM(DB.trips[d]||{}),0),tl=ds.reduce((s,d)=>s+dayTP(d).tol,0),pk=ds.reduce((s,d)=>s+dayTP(d).park,0),rv=ds.reduce((s,d)=>s+dayRev(d),0),tc=ct+tl+pk,
+T=(ic,t,v,sub)=>`<div class='tile' style='padding:8px'><small style='font-size:11.5px'>${ic} ${t}</small><b style='font-size:13px'>${v}</b>${sub?`<small>${sub}</small>`:''}</div>`;
+let h=rangeBar()+`<div style='margin-bottom:12px'><input type='date' id='tadd' style='position:absolute;opacity:0;pointer-events:none;width:1px' onchange='tripAdd(this.value)'><button class='s' style='width:100%' onclick='tripAddPick()'>Pilih tanggal</button></div><div class='tiles' style='grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 6px'>${T('🧭','Total trip',ds.length+' hari',km.toFixed(1)+' km')}${T('💰','Pendapatan',rp(rv))}${T('📈','Nett profit',rp(rv-tc))}${T('🚧','Tol',rp(tl))}${T('🅿️','Parkir',rp(pk))}${T('⛽','Cost trip',rp(ct))}</div><div class='mut' style='margin:0 0 12px'>Total cost (trip + tol + parkir): <b>${rp(tc)}</b></div>`+(ds.map((d,i)=>trCard3(d,i+1)).join('')||'<p class="mut">Belum ada trip pada periode ini.</p>');
+const a=DR.a;if(R=='range'&&a&&a==DR.b&&!DB.orders.some(o=>o.tgl==a&&o.status!='Cancel')&&!DB.trips[a])h+=`<button class='g' style='width:100%' onclick="tripMake('${a}')">+ Buat trip untuk ${fmtD(a)} (tanpa order)</button>`;return h};
+/* photos */
+function ph(t,k,arr){return `<label>${t} (${arr.length})</label><div class="photos">${arr.map((s,i)=>`<span><img src="${s}" onclick="dl('${k}',${i})"></span>`).join("")}</div>
+<div class="row" style="margin-top:6px"><label class="btnl" for="f_${k}">+ Foto</label>${arr.length?`<button class="g sm" onclick="dlAll('${k}')">Download semua (ZIP)</button>`:""}${arr.length?`<button class="g sm" onclick="F.${k}.pop();omodal()">Hapus terakhir</button>`:""}<input id="f_${k}" type="file" accept="image/*" multiple hidden onchange="addPh('${k}',this.files)"></div>`}
+async function addPh(k,fs){try{for(const f of fs)F[k].push(await comp(f));toast(fs.length+' foto ditambahkan')}catch(e){toast('Foto gagal diproses')}omodal()}
+function comp(f){return new Promise(r=>{const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{let w=im.width,h=im.height,q=.85,u=rd.result;if(f.size<=1048576&&f.type=="image/jpeg")return r(u);const m=1600,s=Math.min(1,m/Math.max(w,h));w*=s;h*=s;const c=document.createElement("canvas");
+for(let i=0;i<8;i++){c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);u=c.toDataURL("image/jpeg",q);if(u.length*.75<1000000)break;q-=.1;if(q<.4){w*=.8;h*=.8;q=.7}}r(u)};im.onerror=()=>r(rd.result);im.src=rd.result};rd.readAsDataURL(f)})}
+function dl(k,i){const a=document.createElement("a");a.href=F[k][i];a.download=`${k}-${i+1}.jpg`;a.click()}
+async function dlAll(k){const z=new JSZip();F[k].forEach((s,i)=>z.file(`${k}-${i+1}.jpg`,s.split(",")[1],{base64:true}));const b=await z.generateAsync({type:"blob"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${k}-${F.tgl}.zip`;a.click()}
+function saveO(f){if(!F.vid)return toast("Pilih vendor dulu");const dup=F.jPick&&DB.orders.find(x=>x.id!=F.id&&x.status!="Cancel"&&x.tgl==F.tgl&&x.jPick==F.jPick);if(dup&&!f)return askC("⚠️ Sudah ada order lain ("+(vend(dup.vid)?.nama||"-")+") pada tanggal dan jam pickup yang sama. Tetap simpan?",()=>saveO(1),"Tetap simpan");const o={...F};delete o.isNew;const i=DB.orders.findIndex(x=>x.id==o.id);i<0?DB.orders.push(o):DB.orders[i]=o;save();closeM();render()}
+function delO(){delOrd(F.id)}
+function modal(h){const old=$("#m .sheet"),sc=old?old.scrollTop:0;closeM();const m=document.createElement("div");m.className="modal";m.id="m";m.innerHTML=`<div class="sheet">${h}</div>`;document.body.appendChild(m);m.firstChild.scrollTop=sc}
+function closeM(){const m=$("#m");if(m){m.remove()}}
+/* ---------- dashboard ---------- */
+function inRange(d){const n=new Date(),x=new Date(d+"T00:00:00");if(R=="all")return true;if(R=="pick")return d.slice(0,7)==DM;if(R=="range"){const a=parseD(DR.a),b=parseD(DR.b)||a;return !((a&&d<a)||(b&&d>b))}if(R=="day")return d==today();if(R=="yday"){const y=new Date();y.setDate(y.getDate()-1);return d==y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0')}if(R=="tmr"){const y=new Date();y.setDate(y.getDate()+1);return d==y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0')}if(R=="year")return x.getFullYear()==n.getFullYear();if(R=="month")return x.getMonth()==n.getMonth()&&x.getFullYear()==n.getFullYear();
+const s=new Date(n);s.setDate(n.getDate()-((n.getDay()+6)%7));s.setHours(0,0,0,0);const e=new Date(s);e.setDate(s.getDate()+7);return x>=s&&x<e}
+const wk=d=>{const x=new Date(d+"T00:00:00"),j=new Date(x.getFullYear(),0,1);return Math.floor(((x-j)/864e5+((j.getDay()+6)%7))/7)};
+function bucket(d){const x=new Date(d+"T00:00:00");return P=="week"?wk(d):P=="month"?x.getMonth():P=="quarter"?Math.floor(x.getMonth()/3):Math.floor(x.getMonth()/6)}
+const HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],BLN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+/* ===================== TEST v2: single calc engine + vehicle allocation ===================== */
+const COM=.1,MINC=50000;let PAYF='all',VNF='',MT='rev',_AC={},_DS=null;
+const _ac=()=>{_AC={};_DS=null},_set=()=>_DS||(_DS=new Set(DB.orders));
+const _sv=save;save=function(){_ac();_sv()};
+const T_est=o=>(o.drops||[]).reduce((s,d)=>s+num(d.km),0),T_rate=o=>{const v=vend(o.vid);return o.rate!==''&&o.rate!=null?num(o.rate):(v?v.rate:5000)};
+function dayAlloc(d,sub){if(!sub&&_AC[d])return _AC[d];
+ const L=DB.orders.filter(o=>o.tgl==d&&o.status=='Terkirim'&&!(sub&&o.id==sub.id));if(sub&&sub.tgl==d&&sub.status=='Terkirim')L.push(sub);
+ const t=DB.trips[d]||{},act=num(t.km),n=L.length,est=L.map(T_est),sum=est.reduce((a,b)=>a+b,0),cost=trM(t),has=n>0&&cost>0,
+ A={ids:L.map(o=>o.id),n,act,sum,cost,miss:n>0&&!(cost>0),bad:false,adjKm:null,veh:L.map(()=>0),adj:0,minAct:sum-n*Math.min(...est,0)*0-(n?n*Math.min(...est):0)};
+ if(has){let w;if(act>0){A.adj=(act-sum)/n;w=est.map(x=>x+A.adj);if(w.some(x=>x<-1e-9)){A.bad=true;w=sum>0?est.map(x=>x*act/sum):est.map(()=>act/n)}A.adjKm=w}else w=est.map(()=>1);
+  const sw=w.reduce((a,b)=>a+b,0),raw=w.map(x=>cost*x/sw),r=raw.map(Math.round),df=Math.round(cost)-r.reduce((a,b)=>a+b,0);if(df)r[raw.indexOf(Math.max(...raw))]+=df;A.veh=r}
+ if(!sub)_AC[d]=A;return A}
+calc=function(o){const rate=T_rate(o),ek=T_est(o),tol=num(o.tol),park=num(o.park),tp=tol+park,base=Math.max(MINC,ek*rate),pot=Math.round(base*COM),has=num(o.nom)>0,legacy=has&&o.gv!=2,
+ gross=has?(legacy?num(o.nom)+pot:num(o.nom)):base+tp,live=o.status!='Cancel',del=o.status=='Terkirim',paid=o.bayar=='Lunas',nbv=gross-pot-tp;
+ const A=del?dayAlloc(o.tgl,_set().has(o)?null:o):null,i=A?A.ids.indexOf(o.id):-1,veh=i>=0?A.veh[i]:0,adjKm=i>=0&&A.adjKm?A.adjKm[i]:null;
+ return{rate,estKm:ek,base,pot,tol,park,has,legacy,gross,baseRev:gross-tp,nbv,veh,adjKm,fin:has?gross:null,net:gross,val:gross,bnet:nbv,dist:base,real:null,sel:null,km:adjKm!=null?adjKm:ek,
+  live,del,paid,np:nbv-veh,cash:del&&paid?gross:0,out:del&&!paid?Math.max(0,gross):0,miss:!!(A&&A.miss),bad:!!(A&&A.bad)}};
+const agg=L=>{const r={n:L.length,gross:0,pot:0,tol:0,park:0,veh:0,nbv:0,np:0,out:0,cash:0,km:0},ds=new Set();L.forEach(o=>{const c=calc(o);['gross','pot','tol','park','veh','nbv','np','out','cash','km'].forEach(k=>r[k]+=c[k]);ds.add(o.tgl)});r.d=ds.size;return r};
+const unalloc=inR=>Object.keys(DB.trips).filter(d=>inR(d)&&!DB.orders.some(o=>o.tgl==d&&o.status=='Terkirim')).reduce((s,d)=>s+trM(DB.trips[d]),0);
+const payOK=o=>PAYF=='all'||(PAYF=='lunas'?o.bayar=='Lunas':o.bayar!='Lunas');
+function kpi(inR){const L0=DB.orders.filter(o=>inR(o.tgl)&&(!VNF||o.vid==VNF)),D0=L0.filter(o=>o.status=='Terkirim'),D=D0.filter(payOK),a=agg(D),un=PAYF=='all'&&!VNF?unalloc(inR):0,np=a.np-un,
+ miss=[...new Set(D0.map(o=>o.tgl))].filter(d=>dayAlloc(d).miss);return{L0,D0,D,a,un,veh:a.veh+un,np,mg:a.gross>0?np/a.gross*100:null,miss}}
+/* ---- vendor rate snapshot + gross flag ---- */
+function snapRate(o){if(o.rate===''||o.rate==null){const v=vend(o.vid);o.rate=String(v?v.rate:5000)}}
+function migT(){DB.orders.forEach(o=>{if(o.rate===''||o.rate==null){const v=vend(o.vid);if(v)o.rate=String(v.rate)}})}
+pickV=function(id){const old=F.vid;F.vid=id;if(F.isNew||old!==id||F.rate===''||F.rate==null){const v=vend(id);F.rate=v?String(v.rate):''}F.drops.forEach((_,i)=>autoKm(i));omodal()};
+const _set0=set;set=function(k,v){if(k=='nom'&&String(v)!==String(F.nom||''))F.gv=2;_set0(k,v)};
+const _sO=saveO;saveO=function(f){snapRate(F);if(F.isNew)F.gv=2;_sO(f)};
+const _sSt=setSt;setSt=function(id,s){_sSt(id,s);const o=DB.orders.find(x=>x.id==id);if(s=='Terkirim'&&o&&dayAlloc(o.tgl).miss)toast('Isi Actual KM harian di menu Trip ('+fmtD(o.tgl)+')')};
+sumHtml=function(c){const r=(a,b,cl)=>`<div><span>${a}</span><b${cl?` class="${cl}"`:''}>${b}</b></div>`,ln='<div style="border-top:1px dashed var(--line);margin:6px 0"></div>',st=F.status;
+ let h=r('Status profit',st=='Terkirim'?(c.veh>0?'<span class="tag t2">✅ FINAL</span>':'<span class="tag t1">⏳ SEMENTARA · isi Actual KM</span>'):'<span class="tag t0">belum terkirim</span>')+ln+r(c.has?'Gross dari vendor'+(c.legacy?' (order lama, disetarakan)':''):'Gross (estimasi)',rp(c.gross),c.has?'pos':'')+r('Potong tol','- '+rp(c.tol))+r('Potong parkir','- '+rp(c.park))+r('Pendapatan jarak ('+String(+c.estKm.toFixed(1)).replace('.',',')+' km × '+rp(c.rate)+'/km)',rp(c.baseRev))+r('Potong komisi 10%','- '+rp(c.pot))+ln+r('Laba sebelum biaya kendaraan',rp(c.nbv),c.nbv<0?'neg':'pos');
+ if(st=='Terkirim'){h+=c.veh>0?r('Biaya bensin/kendaraan (otomatis'+(c.adjKm!=null?', '+c.adjKm.toFixed(1)+' km':'')+')','- '+rp(c.veh))+ln+r('Laba bersih final',rp(c.np),c.np<0?'neg':'pos'):r('Biaya bensin/kendaraan','menunggu Actual KM harian (menu Trip)')}else h+=r('Biaya bensin/kendaraan','dihitung setelah status Terkirim');return h+ln+r('Total ditransfer vendor',rp(c.nbv+c.tol+c.park))};
+/* ---- aging: tanggal delivery, nominal outstanding ---- */
+function agList(){const t=Date.now();return DB.orders.filter(o=>o.status=='Terkirim'&&o.bayar!='Lunas').map(o=>{const at=new Date(o.tgl+'T'+(o.jTerima||o.jAntar||'12:00')),h=Math.max(0,(t-at)/36e5);return{o,at,h,d:Math.floor(h/24),amt:calc(o).out}})}
+agF=function(){const q=AG.q.toLowerCase();return agList().filter(x=>agIn(x.o.tgl)&&(AG.c=='all'||(AG.c=='u'?x.d<=30:x.d>30))&&(!q||(vend(x.o.vid)?.nama||'').toLowerCase().includes(q)||x.o.drops.some(d=>(d.nama||'').toLowerCase().includes(q)))).sort(AG.s=='new'?(a,b)=>b.at-a.at:(a,b)=>a.at-b.at)};
+agSum=function(age){const t=age.reduce((s,x)=>s+x.amt,0),r=age.filter(x=>x.d>30).length;return `<div class="card" onclick="go('aging')" style="cursor:pointer"><div class="row sp"><b>⏳ Aging · tagihan belum dibayar vendor</b><span class="mut">Buka ›</span></div><div class="row" style="gap:6px;margin-top:6px"><span class="bb b2">${age.length} order</span><span class="bb b4">${rp(t)}</span>${r?`<span class="bb b5">🔴 ${r} lewat 1 bulan</span>`:''}</div></div>`};
+/* ---- trip: Actual KM harian + alokasi ---- */
+function trTP(id,k,v){const o=DB.orders.find(x=>x.id==id);if(!o)return;o[k]=rawN(v);save();render()}
+trSave3=function(d){const t=DB.trips[d],ce=$('#tc'+d),ok=t.km,oc=t.charge;t.km=$('#tk'+d).value;if(ce)t.charge=rawN(ce.value);_ac();const A=dayAlloc(d);
+ if(A.bad){t.km=ok;t.charge=oc;_ac();return toast('Actual KM terlalu rendah. Minimal '+Math.max(0,A.minAct).toFixed(1)+' km (estimasi order '+A.sum.toFixed(1)+' km). Cek estimasi KM order.')}
+ save();toast('Trip tersimpan · Biaya kendaraan '+rp(trM(t)));render()};
+trCard3=function(d,n){const t=DB.trips[d]||(DB.trips[d]={km:'',veh:'Bensin',rate:'',charge:''}),v0=t.veh||'Bensin',A=dayAlloc(d),os=DB.orders.filter(o=>o.tgl==d&&o.status!='Cancel'),dl=os.filter(o=>o.status=='Terkirim'),ag=agg(dl),cost=trM(t),
+ hr=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][new Date(d+'T00:00:00').getDay()],r=(a,b,c)=>`<div><span>${a}</span><b${c?` class='${c}'`:''}>${b}</b></div>`,
+ info=v0=='Listrik'?`<label>Biaya charge (Rp)</label><input id='tc${d}' inputmode='numeric' value='${fmtN(t.charge)}' oninput='fmtNum(this)'>`:`<p class='mut' style='margin:6px 0 0'>Tarif tetap Rp ${v0=='Diesel'?'680':'1.000'}/km (1 liter = 10 km)</p>`,
+ rows=os.map(o=>{const c=calc(o);return `<div class='card' style='margin:8px 0;padding:10px'><div class='row sp'><b>${esc(vend(o.vid)?.nama||'-')}</b><span class='tag ${STC[ST.indexOf(o.status)]}'>${o.status}</span></div><div class='mut'>Est. ${c.estKm.toFixed(1)} km${c.adjKm!=null?' → disesuaikan '+c.adjKm.toFixed(1)+' km':''}${c.del?' · kendaraan '+rp(c.veh)+' · nett '+rp(c.np):''}</div><div class='grid'><div><label>Tol</label><input inputmode='numeric' value='${fmtN(o.tol)}' oninput='fmtNum(this)' onchange="trTP('${o.id}','tol',this.value)"></div><div><label>Parkir</label><input inputmode='numeric' value='${fmtN(o.park)}' oninput='fmtNum(this)' onchange="trTP('${o.id}','park',this.value)"></div></div></div>`}).join(''),
+ w=(A.miss?`<p class='neg'>⚠️ Actual KM belum diisi: biaya kendaraan belum dihitung.</p>`:'')+(A.bad?`<p class='neg'>⚠️ Actual KM terlalu rendah dibanding estimasi order. Alokasi disesuaikan proporsional; cek estimasi KM.</p>`:''),
+ orphan=os.length?'':`<div class='row' style='margin-top:8px'><span class='bb b6'>Tanpa order di tanggal ini</span><button class='d sm' onclick="trDel('${d}')">Hapus trip</button></div>`,okS=Math.abs(ag.veh-Math.round(cost))<1;
+ return `<div class='card'><div class='row sp'><b>${n}. ${hr}, ${fmtD(d)}</b><span class='bb b1'>${dl.length} terkirim · ${os.length-dl.length} lainnya</span></div><label>Actual KM harian <span class='mut'>(total jarak tempuh hari ini — dari odometer/Maps)</span></label><div class='mut' style='font-size:12px;margin:0 0 4px'>📦 KM order terkirim (acuan): ${A.sum.toFixed(1)} km${A.n&&A.act>0?' · penyesuaian '+(A.adj>=0?'+':'')+A.adj.toFixed(1)+' km/order':''}</div><input id='tk${d}' type='number' step='0.1' inputmode='decimal' value='${esc(t.km)}'><label>Kendaraan</label><div class='row'>${[['Bensin','⛽'],['Diesel','🛢️'],['Listrik','🔋']].map(([v,ic])=>`<span class='chip ${v0==v?'on':''}' onclick="trSet2('${d}','veh','${v}',1)">${ic} ${v}</span>`).join('')}</div>${info}<button class='sm' style='margin-top:10px;width:100%' onclick="trSave3('${d}')">Simpan</button>${w}<b style='display:block;margin-top:10px'>Order (tol/parkir bisa diedit jika aktual beda)</b>${rows}
+ <div class='sum'>${r('Gross',rp(ag.gross))}${r('Potong komisi','- '+rp(ag.pot))}${r('Potong tol','- '+rp(ag.tol))}${r('Potong parkir','- '+rp(ag.park))}${r('Biaya bensin/kendaraan','- '+rp(cost))}${dl.length?r('Dialokasikan ke order',(okS?'✓ ':'⚠️ ')+rp(ag.veh)):r('Tidak dialokasikan (tanpa order terkirim)',rp(cost))}<div style="border-top:1px dashed var(--line);margin:6px 0"></div>${r('Laba bersih hari ini',rp(ag.np-(dl.length?0:cost)),'pos')}</div>${orphan}</div>`};
+tripView3=function(){const ds=[...new Set([...DB.orders.filter(o=>o.status!='Cancel').map(o=>o.tgl),...Object.keys(DB.trips).filter(d=>{const t=DB.trips[d];return t.manual||num(t.km)>0||num(t.charge)>0})])].filter(inRange).sort().reverse(),
+ dl=DB.orders.filter(o=>o.status=='Terkirim'&&ds.includes(o.tgl)),a=agg(dl),un=unalloc(d=>ds.includes(d)),T=(ic,t,v,s)=>`<div class='tile' style='padding:8px'><small style='font-size:11.5px'>${ic} ${t}</small><b style='font-size:13px'>${v}</b>${s?`<small>${s}</small>`:''}</div>`;
+ let h=rangeBar()+`<div style='margin-bottom:12px'><input type='date' id='tadd' style='position:absolute;opacity:0;pointer-events:none;width:1px' onchange='tripAdd(this.value)'><button class='s' style='width:100%' onclick='tripAddPick()'>Pilih tanggal</button></div><div class='tiles' style='grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px'>${T('🧭','Hari trip',ds.length+' hari',num(a.km).toFixed(1)+' km')}${T('💰','Gross',rp(a.gross))}${T('📈','Nett profit',rp(a.np-un))}${T('🚧','Tol',rp(a.tol))}${T('🅿️','Parkir',rp(a.park))}${T('⛽','Kendaraan',rp(a.veh+un))}</div>`+(ds.map((d,i)=>trCard3(d,i+1)).join('')||'<p class="mut">Belum ada trip pada periode ini.</p>');
+ const x=DR.a;if(R=='range'&&x&&x==DR.b&&!DB.orders.some(o=>o.tgl==x&&o.status!='Cancel')&&!DB.trips[x])h+=`<button class='g' style='width:100%' onclick="tripMake('${x}')">+ Buat trip untuk ${fmtD(x)} (tanpa order)</button>`;return h};
+/* ---- dashboard ---- */
+function statCard4(L,D){const n=D.length,nn=n||1,a=agg(D),T=(ic,t,v)=>`<div class='tile'><small>${ic} ${t}</small><b>${v}</b></div>`,HB=(l,v,mx,txt,col)=>`<div class='hb'><span class='w'>${l}</span><div><i style='width:${mx>0?Math.max(0,v)/mx*100:0}%;${col?'background:'+col:''}'></i></div><b>${txt}</b></div>`,H=t=>`<b style='display:block;margin:14px 0 4px'>${t}</b>`,
+ grp=f=>{const m={};D.forEach(o=>{const k=f(o);m[k]=m[k]||{n:0,r:0};m[k].n++;m[k].r+=calc(o).np});return Object.entries(m).sort((x,y)=>y[1].r-x[1].r)},vs=grp(o=>vend(o.vid)?.nama||'-').slice(0,5),sr=grp(o=>o.src||'-'),md=['🥇','🥈','🥉','4️⃣','5️⃣'],cnt=ST.map(s=>L.filter(o=>o.status==s).length),mc=Math.max(1,...cnt),lun=D.filter(o=>o.bayar=='Lunas').length;
+ if(!L.length)return `<div class='card'><b>📊 Statistik lengkap</b><p class='mut'>Belum ada order pada periode ini.</p></div>`;
+ return `<div class='card'><b>📊 Statistik lengkap</b><div class='tiles'>`+T('💰','Rata-rata profit / order',rp(a.np/nn))+T('📅','Rata-rata profit / hari kirim',rp(a.np/(a.d||1)))+T('🗓️','Hari ada pengantaran',a.d+' hari')+T('🛣️','Total KM (disesuaikan)',a.km.toFixed(1)+' km')+T('⛽','Gross / km',a.km?rp(a.gross/a.km):'-')+T('🔀','Order multi-drop',D.filter(o=>o.drops.length>1).length)+'</div>'
+ +H('📦 Status pengiriman')+ST.map((s,i)=>HB(['⏳','✅','❌'][i]+' '+s,cnt[i],mc,cnt[i],['#8a93a8','#0f8a7e','#c62828'][i])).join('')+H('💳 Status pembayaran (terkirim)')+HB('✅ Lunas',lun,Math.max(1,lun,n-lun),lun,'#0f8a7e')+HB('⏳ Outstanding',n-lun,Math.max(1,lun,n-lun),n-lun,'#d98200')
+ +H('🏅 Vendor teratas (nett profit)')+vs.map(([k,v],i)=>HB(md[i]+' '+esc(k),v.r,vs[0][1].r,rp(v.r)+' · '+v.n,'')).join('')+H('👤 Per sumber order')+sr.map(([k,v])=>HB('👤 '+esc(k),v.r,sr[0][1].r,rp(v.r)+' · '+v.n,'')).join('')+'</div>'}
+dash=function(){const K=kpi(inRange),a=K.a,L=K.L0,D=K.D,pend=L.filter(o=>o.status=='Belum Dikirim').length,canc=L.filter(o=>o.status=='Cancel').length,ch=(c,k,t,v)=>`<span class="chip ${c==k?'on':''}" onclick="${v}='${k}';render()">${t}</span>`,
+ r=(x,y,c,b)=>`<div class='row sp' style='margin:6px 0${b?';padding-top:6px;border-top:1px solid var(--line)':''}'><span>${x}</span><b${c?` class='${c}'`:''}>${y}</b></div>`,g=(t,body,col)=>`<div class='card' style='grid-column:1/-1;margin:0;border-left:5px solid ${col}'><b>${t}</b>${body}</div>`,
+ base=DB.orders.filter(o=>o.status=='Terkirim'&&(!VNF||o.vid==VNF)&&payOK(o)),yr=new Date().getFullYear(),n=P=='week'||P=='month'?12:P=='quarter'?4:2,cur=new Array(n).fill(0),prv=new Array(n).fill(0),off=P=='week'?Math.max(0,wk(today())-11):0,
+ top=(f)=>{const m={};D.forEach(o=>{const k=f(o),c=calc(o);m[k]=m[k]||{n:0,r:0};m[k].n++;m[k].r+=MT=='np'?c.np:c.gross});return Object.entries(m).sort((x,y)=>y[1].r-x[1].r)[0]},
+ bw=(()=>{const m={};D.forEach(o=>{const k='W:'+wkStart(o.tgl),c=calc(o);m[k]=m[k]||{n:0,r:0};m[k].n++;m[k].r+=MT=='np'?c.np:c.gross});return Object.entries(m).sort((x,y)=>y[1].r-x[1].r)[0]})();
+ base.forEach(o=>{const y=+o.tgl.slice(0,4),b=bucket(o.tgl)-off;if(b<0||b>=n)return;const c=calc(o),v=MT=='np'?c.np:c.gross;if(y==yr)cur[b]+=v;else if(CMP&&y==CMP)prv[b]+=v});
+ const mx=Math.max(1,...cur,...prv),lb=i=>P=='week'?'M'+(i+off+1):P=='month'?BLN[i]:P=='quarter'?'Q'+(i+1):'S'+(i+1),ml=MT=='np'?'Nett profit':'Revenue';
+ return rangeBar()+`<div class="row" style="margin-bottom:8px;flex-wrap:nowrap;gap:6px;overflow-x:auto">${[['all','Lunas + Outstanding'],['lunas','Lunas saja'],['out','Outstanding saja']].map(([k,t])=>ch(PAYF,k,t,'PAYF').replace('<span ','<span style="padding:8px 9px;font-size:12px;white-space:nowrap;flex:none" ')).join('')}</div><select style="margin-bottom:10px" onchange="VNF=this.value;render()"><option value="">Semua vendor</option>${[...DB.vendors].sort((x,y)=>x.nama.localeCompare(y.nama,'id')).map(v=>`<option value="${v.id}" ${VNF==v.id?'selected':''}>${esc(v.nama)}</option>`).join('')}</select>
+ ${K.miss.length?`<div class="card" style="border-left:5px solid var(--bad)"><b>⚠️ ${K.miss.length} hari belum ada Actual KM</b><div class="mut">Biaya kendaraan hari itu belum dihitung, profit bisa terlihat lebih besar. Isi di menu Trip.</div></div>`:''}
+ <div class="grid">${g('💰 Income (accrual: order terkirim)',r('Gross',rp(a.gross))+r('✅ Cash received (lunas)',rp(a.cash))+r('⏳ Outstanding',rp(a.out),'',1),'var(--ac2)')}${g('💸 Cost',r('Commission 10%',rp(a.pot))+r('🚧 Tol',rp(a.tol))+r('🅿️ Parkir',rp(a.park))+r('⛽ Biaya kendaraan',rp(K.veh))+(K.un?r('↳ termasuk tanpa order',rp(K.un)):''),'var(--warn)')}${g('📈 Profit',r('Nett profit',rp(K.np),K.np<0?'neg':'pos',1)+r('Profit margin',K.mg==null?'-':K.mg.toFixed(1)+'%')+r('Rata-rata profit / order',rp(a.n?K.np/a.n:0))+r('Rata-rata profit / hari kirim',rp(a.d?K.np/a.d:0)),'var(--ac)')}
+ </div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px"><div class="kpi" style="margin:0;padding:10px"><small style="font-size:12px">Terkirim</small><b>${a.n}</b></div><div class="kpi" style="margin:0;padding:10px"><small style="font-size:12px">Perlu dikirim</small><b>${pend}</b></div><div class="kpi" style="margin:0;padding:10px"><small style="font-size:12px">Cancel</small><b>${canc}</b></div></div>
+ <div class="card" style="margin-top:12px"><div class="row" style="margin-bottom:6px"><span class="mut">Metrik grafik:</span>${ch(MT,'rev','Revenue','MT')}${ch(MT,'np','Nett Profit','MT')}</div><b>Grafik ${ml.toLowerCase()} tahun ini</b>${cmpRow(base,yr)}<div class="row" style="margin-top:8px">${[['week','Mingguan'],['month','Bulanan'],['quarter','Kuartal'],['semester','Semester']].map(([k,t])=>ch(P,k,t,'P')).join('')}</div>
+ <div class="bars">${cur.map((v,i)=>`<div title="${rp(v)}"><i style="height:${Math.max(0,v)/mx*100}%"></i>${CMP?`<i class="p" style="height:${Math.max(0,prv[i])/mx*100}%"></i>`:''}</div>`).join('')}</div><div class="lab">${cur.map((_,i)=>`<span>${lb(i)}</span>`).join('')}</div>${CMP?`<p class="mut">Abu-abu: ${CMP}. Tahun ini: ${rp(cur.reduce((x,y)=>x+y,0))} · ${CMP}: ${rp(prv.reduce((x,y)=>x+y,0))}</p>`:''}</div>
+ ${agSum(agList())}${perfCard(base)}<div class="card"><b>Performa terbaik (${ml})</b><div class="tiles">${bt('📅','Hari terbaik',top(o=>o.tgl))}${bt('🗓️','Hari dalam pekan',top(o=>HARI[new Date(o.tgl+'T00:00:00').getDay()]))}${bt('📆','Minggu terbaik',bw)}${bt('🏆','Bulan terbaik',top(o=>o.tgl.slice(0,7)))}</div>${!D.length?'<p class="mut">Belum ada data.</p>':''}</div>
+ ${statCard4(L,D)}<div class="row"><button class="s" onclick="exOpen('xlsx')">Export XLSX</button><button class="g" onclick="exOpen('pdf')">Export PDF</button></div>`};
+pfSel=()=>'';let OVF='';function vendSel(){if(OVF&&!vend(OVF))OVF='';const vs=[...DB.vendors].sort((x,y)=>x.nama.localeCompare(y.nama,'id'));return `<select style="margin-bottom:10px" onchange="OVF=this.value;render()"><option value="">Semua vendor</option>${vs.map(v=>`<option value="${v.id}" ${OVF==v.id?'selected':''}>${esc(v.nama)}</option>`).join('')}</select>`}
+/* ---- export (sumber sama dengan dashboard) ---- */
+rowsOf2=L=>L.map(o=>{const c=calc(o);return{Tanggal:fmtD(o.tgl),Sumber:o.src,Vendor:vend(o.vid)?.nama||'',Tujuan:o.drops.map(d=>d.nama).join('; '),Status:o.status,Bayar:o.bayar,'Est KM':+c.estKm.toFixed(1),'KM disesuaikan':c.adjKm==null?'':+c.adjKm.toFixed(1),'Tarif/km':c.rate,'Base charge':c.live?c.base:0,Gross:c.del?c.gross:0,Komisi:c.del?c.pot:0,Tol:c.del?c.tol:0,Parkir:c.del?c.park:0,'Nett sebelum kendaraan':c.del?c.nbv:0,'Biaya kendaraan':c.veh,'Nett profit':c.del?c.np:0,Cash:c.cash,Outstanding:c.out}});
+function sumOf2(L,K){const a=K.a;return[['Order terkirim',a.n,0],['Gross',a.gross,1],['Commission',a.pot,1],['Tol',a.tol,1],['Parkir',a.park,1],['Biaya kendaraan',K.veh,1],['Nett profit',K.np,1],['Cash received',a.cash,1],['Outstanding',a.out,1],['Profit margin',K.mg==null?'-':K.mg.toFixed(1)+'%',0]]}
+exGo=function(){const a=parseD(EX.a),b=parseD(EX.b)||a;if((EX.a&&!a)||(EX.b&&!parseD(EX.b)))return toast('Format tanggal harus DD/MM/YYYY');const inR=d=>!((a&&d<a)||(b&&d>b)),K=kpi(inR),L=K.L0.filter(payOK).sort((x,y)=>x.tgl.localeCompare(y.tgl));if(!L.length)return toast('Tidak ada order pada rentang itu (cek juga filter Lunas/Outstanding)');
+ const lbl=(a?fmtD(a)+(b&&b!=a?' - '+fmtD(b):''):'Semua tanggal')+' · '+({all:'Lunas+Outstanding',lunas:'Lunas saja',out:'Outstanding saja'})[PAYF]+(VNF?' · '+(vend(VNF)?.nama||''):''),S=sumOf2(L,K),R2=rowsOf2(L),nm='ss-delivery-'+(a||'semua');
+ if(EX.t=='pdf'){const d=new jspdf.jsPDF({orientation:'landscape'});d.setFontSize(12);d.text('SS Delivery Tracker - Laporan '+lbl,14,14);d.autoTable({startY:20,head:[['Ringkasan','Nilai']],body:S.map(([k,v,m])=>[k,m?rp(v):v]),styles:{fontSize:8}});d.autoTable({startY:d.lastAutoTable.finalY+8,head:[['Tgl','Vendor','Status','Bayar','KM','Gross','Komisi','Tol+Pkr','Kend.','Nett']],body:R2.map(x=>[x.Tanggal,x.Vendor,x.Status,x.Bayar,x['KM disesuaikan']===''?x['Est KM']:x['KM disesuaikan'],rp(x.Gross),rp(x.Komisi),rp(x.Tol+x.Parkir),rp(x['Biaya kendaraan']),rp(x['Nett profit'])]),styles:{fontSize:8}});d.save(nm+'.pdf')}
+ else{const w=XLSX.utils.book_new();XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet([['Periode',lbl],...S.map(([k,v])=>[k,v])]),'Ringkasan');XLSX.utils.book_append_sheet(w,XLSX.utils.json_to_sheet(R2),'Pengiriman');XLSX.writeFile(w,nm+'.xlsx')}closeM()};
+rows=()=>rowsOf2(DB.orders);
+/* ---- backup/restore + start (copy data asli dengan persetujuan) ---- */
+const _bd=bkData;bkData=function(){const d=JSON.parse(_bd());d.ver='test-v2';return JSON.stringify(d)};
+const _br=bkRestore;bkRestore=function(){try{localStorage.setItem('ssdt_test_prev',JSON.stringify(DB))}catch(e){}_br()};
+const _bo=bkOpen;bkOpen=function(){_bo();const s=$('#m .sheet');if(s)s.insertAdjacentHTML('beforeend','<h3 style="margin:18px 0 4px">Versi Test</h3><p class="mut">Data Test tersimpan terpisah. Data versi asli tidak pernah diubah.</p><div class="row"><button class="g sm" onclick="undoRestore()">Batalkan restore terakhir</button><button class="g sm" onclick="recopy()">Salin ulang dari data asli</button></div>')};
+function undoRestore(){const p=localStorage.getItem('ssdt_test_prev');if(!p)return toast('Belum ada restore yang bisa dibatalkan');askC('Kembalikan data Test ke kondisi sebelum restore terakhir?',()=>{DB=JSON.parse(p);save();closeM();render()},'Ya, kembalikan')}
+function recopy(){if(localStorage.getItem(TSRC)==null)return toast('Data versi asli tidak ditemukan di browser ini');askC('Timpa data Test dengan salinan baru dari versi asli? (versi asli tidak berubah)',()=>{try{localStorage.setItem('ssdt_test_prev',JSON.stringify(DB))}catch(e){}pendGo(1);closeM()},'Ya, salin ulang')}
+function pendGo(c){if(c){try{DB=JSON.parse(localStorage.getItem(TSRC))||DB}catch(e){return toast('Data asli gagal dibaca')}}DB.vendors=DB.vendors||[];DB.orders=DB.orders||[];DB.trips=DB.trips||{};DB.contacts=DB.contacts||{};DB.picNames=DB.picNames||{Ira:'Ira',Laser:'Laser'};DB.pics=DB.pics||['Ira','Laser'];
+ if(!DB.vendors.length)DB.vendors=SEED.map((s,i)=>({id:'v'+i,nama:s[0],pic:s[1],tel:s[2],alamat:s[3],rate:s[4],map:s[5],mapMode:'link'}));PEND=false;migT();save();render()}
+const _rn=render;render=function(){_ac();if(PEND){$('#app').innerHTML=`<div class="card"><h3 style="margin:0 0 6px">SS Delivery Tracker - Test</h3><p>Versi percobaan dengan penyimpanan terpisah. Data versi asli <b>tidak diubah</b>.</p><p class="mut">Data versi asli ditemukan di browser ini. Salin ke versi Test?</p><div class="row"><button class="s" onclick="pendGo(1)">Salin data asli ke Test</button><button class="g" onclick="pendGo(0)">Mulai kosong</button></div></div>`;return}_rn()};
+if(!PEND)migT();save();
+
+/* ===================== SMART CHAT PARSER (lokal, modular) ===================== */
+const SPK={P:[[/\b(jemput|penjemputan|pick\s*-?\s*up|pickup|ambil|pengambilan|loading|sender|pengirim|titik jemput|origin)\b/g,1],[/\b(dari|asal|from)\b/g,.5]],
+ D:[[/\b(antar|diantar|pengantaran|kirim ke|dikirim ke|drop\s*-?\s*off|dropoff|drop|tujuan|receiver|penerima|kepada|yth|a\/n|atas nama|deliver|delivery|alamat pengiriman|ship to|destination|dest)\b/g,1],[/\b(kirim|dikirim|untuk)\b/g,.6]]};
+const SPMO=['jan','feb','mar','apr','mei','jun','jul','agu','sep','okt','nov','des'],
+ SPU='pcs|pc|buah|biji|box|dus|kotak|koli|paket|pack|pak|kg|gr|gram|liter|ltr|loyang|tray|cup|set|unit|botol|btl|kantong|bag|porsi|lusin|ikat|sak|karung|karton|roll|slice|potong|bungkus|toples',
+ SPADDR=/\b(jl|jln|jalan|gg|gang|no|nomor|rt|rw|kel|kelurahan|kec|kecamatan|komplek|kompleks|perum|perumahan|blok|ruko|apartemen|apt|tower|lt|lantai|kota|kab|kabupaten|desa|dusun|cluster)\b\.?/i,
+ SPITEM=/\b(barang|item|cargo|isi|paket|pesanan|produk|kue|cake|tart|roti|makanan|dokumen|berkas|parsel|hampers)\b/i,
+ SPFRAG=/(fragile|mudah pecah|pecah belah|hati-hati|jangan (?:dibalik|ditumpuk|miring|dibanting)|keep cold|cool ?box|simpan dingin|bawa dingin)/i,
+ SPSTOP=/^(terima kasih|makasih|tks|thanks|thank you|tolong|mohon|halo|hai|hi|selamat|permisi|oke|ok|siap|baik|segera|urgent|ya|yaa|mau|minta|bisa|boleh|order|orderan|pesanan|titip|kirim|antar|jemput|ambil|jam|tanggal|besok|hari|lusa|alamat|nama|no|pengirim|sender|catatan|note)\b/i,
+ SPMAP=/maps|goo\.gl|g\.co\/kgs|goo\.gle/i,SPCOORD=/(-?\d{1,2}\.\d{4,})\s*,\s*(-?\d{2,3}\.\d{4,})/g;
+const spE=s=>String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),spC=c=>c>=.9?'H':c>=.6?'M':'L',spF=(v,c,why,cands)=>({v,c:Math.max(0,Math.min(1,c)),why:why||[],cands:cands||[]});
+function spZs(t,k){const s=t.toLowerCase();let v=0;for(const[r,w]of SPK[k]){const m=s.match(r);if(m)v+=w*Math.min(m.length,2)}
+ const st=s.replace(/^[\s\d.)\-*\u2022]+/,'');for(const[r,w]of SPK[k])if(new RegExp('^(?:'+r.source+')').test(st))v+=w*.5;
+ if(v<1){const FW={P:['jemput','pickup','ambil','pengirim','loading'],D:['antar','tujuan','penerima','kirim','kepada']};for(const w of s.split(/[^a-z]+/))if(w.length>=5&&FW[k].some(c=>c!=w&&lev(c,w)<=1)){v+=.8;break}}return v}
+function spPh(s){const o=[],re=/(?:\+?62|0)[\s-]?8\d{1,2}(?:[\s.-]?\d{3,4}){2,3}/g;let m;while(m=re.exec(s)){let r=m[0],n=r.replace(/\D/g,'');while(n.length>13){r=r.replace(/[\s.-]?\d{3,4}$/,'');n=r.replace(/\D/g,'')}re.lastIndex=m.index+r.length;if(n.startsWith('62'))n='0'+n.slice(2);if(n.length>=10&&n.length<=13)o.push({n,at:m.index,raw:r})}return o}
+function spPrep(t){return t.replace(/\r/g,'').split('\n').map((raw,i)=>{const l={i,raw,urls:[],co:[],ph:[]};let s=raw;
+ s=s.replace(/(?:https?:\/\/|\b(?:maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs)\/)[^\s)]*/gi,m=>{const u=m.replace(/[.,;!]+$/,'');l.urls.push(/^https?:/i.test(u)?u:'https://'+u);return ' '.repeat(m.length)});
+ s=s.replace(SPCOORD,(m,a,b)=>{l.co.push(a+','+b);return ' '.repeat(m.length)});
+ l.ph=spPh(s);l.ph.forEach(p=>{s=s.slice(0,p.at)+' '.repeat(p.raw.length)+s.slice(p.at+p.raw.length)});s=s.replace(/[*_~]/g,' ');l.m=s;l.c=s.replace(/\s+/g,' ').trim();return l})}
+function spZones(L){let cur=null;L.forEach(l=>{if(!l.c){l.z=null;cur=null;return}const p=spZs(l.c,'P'),d=spZs(l.c,'D'),tl=/^\W*(jam|waktu|pukul|time)\b/i.test(l.c);let z=null;if(p>=.6&&d>=.6)z='M';else if(p>d&&p>=.6)z='P';else if(d>p&&d>=.6)z='D';
+ if(z){l.z=z;l.ex=1;if(!tl)cur=z=='P'?'P':'D'}else{l.z=cur;l.ex=0}});
+ L.forEach((l,i)=>{if(/\b(bca|bni|bri|mandiri|cimb|norek|rekening|btpn|bsi|gopay|ovo)\b/i.test(l.c)||(!l.ph.length&&/\d{4}[- ]\d{4}[- ]\d{4}/.test(l.raw))){l.z='X';const p=L[i-1];if(p&&p.c&&/:/.test(p.c))p.z='X'}})}
+function spDates(l,today){const o=[],s=l.m,low=s.toLowerCase(),T=new Date(today+'T00:00:00'),used=[],ov=(a,b)=>used.some(u=>a<u[1]&&b>u[0]),
+ iso=(y,m,d)=>{if(m<1||m>12||d<1||d>31)return null;const x=new Date(y,m-1,d);return x.getMonth()==m-1?y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'):null},
+ add=n=>{const x=new Date(T);x.setDate(x.getDate()+n);return iso(x.getFullYear(),x.getMonth()+1,x.getDate())},lab=/\b(tanggal|tgl|date)\b/.test(low);let m,re;
+ re=/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/g;while(m=re.exec(s)){const y=m[3].length==2?2000+ +m[3]:+m[3],v=iso(y,+m[2],+m[1]);if(v){o.push({v,c:lab?.95:.9,w:'tanggal lengkap'});used.push([m.index,m.index+m[0].length])}}
+ re=/\b(\d{1,2})\s+(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)[a-z]*\.?(?:\s+(\d{4}))?/gi;while(m=re.exec(s)){const v=iso(m[3]?+m[3]:T.getFullYear(),SPMO.indexOf(m[2].toLowerCase())+1,+m[1]);if(v){o.push({v,c:lab?.95:m[3]?.9:.85,w:'tanggal + bulan'});used.push([m.index,m.index+m[0].length])}}
+ re=/\b(\d{1,2})\/(\d{1,2})\b(?![\/\d])/g;while(m=re.exec(s)){if(ov(m.index,m.index+m[0].length))continue;const v=iso(T.getFullYear(),+m[2],+m[1]);if(v&&+m[2]<=12)o.push({v,c:lab?.9:.7,w:'dd/mm tanpa tahun'})}
+ if(/\b(hari ini|today)\b/.test(low))o.push({v:add(0),c:.88,w:'hari ini'});if(/\b(besok|esok|tomorrow)\b/.test(low))o.push({v:add(1),c:.88,w:'besok'});if(/\blusa\b/.test(low))o.push({v:add(2),c:.85,w:'lusa'});
+ const wd=['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];re=/\b(senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu|ahad)\b(?!\s+(?:depan|ini|lalu))/g;while(m=re.exec(low)){const k=m[1]=='ahad'?0:wd.indexOf(m[1].replace("jum'at",'jumat'));let n=(k-T.getDay()+7)%7;o.push({v:add(n),c:.7,w:'nama hari',wd:1,k})}
+ return o.map(x=>Object.assign({li:l.i},x))}
+function spTimes(l,rules,zone){const s=l.m,low=s.toLowerCase(),T=[];let m;const re=/(\d{1,2})\s*[.:]\s*(\d{2})/g;
+ while(m=re.exec(s)){const p=m.index,e=p+m[0].length,pc=s[p-1],nc=s[e],n2=s[e+1];if(pc&&/[\d.\/:]/.test(pc))continue;if(nc&&(/\d/.test(nc)||(/[.\/:]/.test(nc)&&n2&&/\d/.test(n2))))continue;const h=+m[1],mi=+m[2];if(h>23||mi>59)continue;T.push({h,mi,at:p,end:e})}
+ const r2=/\b(?:jam|pukul|pkl)\s*(\d{1,2})(?![\d:.\/])|\b(\d{1,2})\s*(?=(?:pagi|siang|sore|malam)\b)/gi;
+ while(m=r2.exec(s)){const h=+(m[1]||m[2]);if(h>23||T.some(x=>m.index<x.end&&m.index+m[0].length>x.at))continue;T.push({h,mi:0,at:m.index,end:m.index+m[0].length,bare:/^(?:jam|pukul|pkl)/i.test(m[0])})}
+ T.sort((a,b)=>a.at-b.at);const RR={jTerima:'(?:sudah|telah|udah)\\s+(?:di)?terima|received|sampai di (?:tujuan|lokasi)',jPick:'jemput|pick\\s*-?\\s*up|pickup|ambil|pengambilan|loading|siap diambil|ready',jAntar:'antar|kirim|sampai|tiba|sblm|sblum|sebelom|setelah|stlh|diterima|terima|deliver|eta\\b|max(?:imal)?\\b|paling lambat|sebelum|deadline|tujuan'};
+ (rules||[]).filter(r=>r.t=='cue').forEach(r=>{RR[r.f]+='|\\b'+spE(r.w)+'\\b'});
+ const last=seg=>{let b=null;for(const k in RR){const g=new RegExp(RR[k],'g');let mm;while(mm=g.exec(seg)){if(!b||mm.index>b.i||(mm.index==b.i&&k=='jTerima'))b={k,i:mm.index}}}return b},first=seg=>{let b=null;for(const k in RR){const mm=new RegExp(RR[k]).exec(seg);if(mm&&(!b||mm.index<b.i))b={k,i:mm.index}}return b};
+ return T.map((t,i)=>{let tail=low.slice(t.end,t.end+14),h=t.h,asm=false;const fin=r=>{if(asm){r.c=Math.min(r.c,.75);r.w+=' (asumsi siang/sore)'}return r};if(/^\s*(sore|malam)/.test(tail)&&h<12)h+=12;else if(/^\s*siang/.test(tail)&&h>=1&&h<=5)h+=12;else if(t.bare&&h>=1&&h<=6&&!/^\s*(pagi|malam|dini)/.test(tail)){h+=12;asm=true}
+  const v=String(h).padStart(2,'0')+':'+String(t.mi).padStart(2,'0'),seg=low.slice(i?T[i-1].end:0,t.at);let b=null;
+  if(RR.jTerima&&new RegExp(RR.jTerima).test(seg.slice(-34)))b={k:'jTerima'};else b=last(seg);if(!b&&!T[i+1])b=first(low.slice(t.end,t.end+22));
+  if(b)return fin({v,f:b.k,c:.93,w:'kata kunci waktu'});if(zone=='P')return fin({v,f:'jPick',c:.75,w:'konteks pickup'});if(zone=='D')return fin({v,f:'jAntar',c:.75,w:'konteks antar'});return fin({v,f:null,c:.45,w:'tanpa konteks'})})}
+function spVendor(L,V,urls,sph,rules,low){const C=[];
+ for(const v of V){let s=0;const why=[],nm=(v.nama||'').toLowerCase().split('(')[0].trim(),id=((v.map||'').match(/\/([A-Za-z0-9_-]{8,})(?:\?|$)/)||[])[1];
+  if(id&&urls.some(u=>u.includes(id))){s=.97;why.push('link maps cocok')}
+  const td=String(v.tel||'').replace(/\D/g,'').slice(-9);if(td.length>=8&&sph.some(p=>p.slice(-9)==td)){s=Math.max(s,.95);why.push('nomor telepon cocok')}
+  if(nm.length>=3){const hit=L.filter(l=>new RegExp('(^|[^a-z0-9])'+spE(nm)+'([^a-z0-9]|$)').test(l.c.toLowerCase()));
+   if(hit.length){let x=nm.length<4?.8:.9;if(hit.every(l=>l.z=='D'))x*=.6;if(hit.some(l=>l.z=='P'))x=Math.min(.95,x+.03);if(x>s){s=x;why.length=0;why.push('nama cocok')}}
+   else{const ws=nm.split(/\s+/).filter(w=>w.length>=4),tw=low.split(/[^a-z0-9]+/);const ex=ws.filter(w=>tw.includes(w));
+    if(ws.length&&ex.length==ws.length&&ws.length>1){s=Math.max(s,.88);why.push('semua kata nama cocok')}else if(ex.length&&ws.length>1){s=Math.max(s,.74);why.push('sebagian nama cocok')}
+    else{const fz=ws.some(w=>w.length>=5&&tw.some(x=>x.length>=4&&lev(x,w)<=1));if(fz){s=Math.max(s,.7);why.push('nama mirip (typo?)')}}}}
+  const ad=(v.alamat||'').toLowerCase().replace(/^jl\.?\s*/,'').split(/\s+/).slice(0,2).join(' ');if(ad.length>6&&L.some(l=>l.z!='D'&&l.c.toLowerCase().includes(ad))){if(.75>s){s=.75;why.length=0;why.push('alamat cocok')}}
+  (rules||[]).filter(r=>r.t=='alias'&&r.vid==v.id).forEach(r=>{if(new RegExp('\\b'+spE(r.tok)+'\\b').test(low)&&.8>s){s=.8;why.length=0;why.push('alias hasil koreksi')}});
+  if(s>0)C.push({v,s,why})}
+ C.sort((a,b)=>b.s-a.s);if(!C.length)return null;let c=C[0].s;const why=C[0].why.slice();
+ if(C[1]&&C[0].s-C[1].s<.08){c-=.3;why.push('ambigu: '+C[1].v.nama+' juga cocok')}
+ return spF(C[0].v.id,c,why,C.slice(0,3).map(x=>({v:x.v.id,label:x.v.nama})))}
+function spCut(x){const m=/\b(jl|jln|jalan|gg|gang|komplek|kompleks|perum|perumahan|blok|ruko|apartemen|apt|tower|cluster)\b/i.exec(x);if(m&&m.index>0)x=x.slice(m.index);const e=/\s*(?:[,;.]\s*)?(?:\b(?:jam|pukul|pkl)\s*\d|\bya\b|\bterima kasih\b|\btolong\b|\bpaket\b|\bantar\b|\bjemput\b)/i.exec(x);if(e&&e.index>6)x=x.slice(0,e.index);return x.trim().replace(/[,;]+$/,'')}
+function spDrop(B,x){const out={},L=B.filter(l=>l.z!='X'&&(l.c||l.ph.length||l.urls.length||l.co.length)),multi=x.multi;
+ let phs=[];L.forEach(l=>l.ph.forEach(p=>{if(l.z=='P'||x.sph.some(q=>q.slice(-9)==p.n.slice(-9)))return;phs.push({n:p.n,l})}));const seen=new Set();phs=phs.filter(p=>!seen.has(p.n)&&seen.add(p.n));
+ if(phs.length){const sc=p=>(/\b(hp|wa|whatsapp|telp|tlp|phone|kontak|contact)\b/i.test(p.l.c)?2:0)+(p.l.z=='D'?1:0)+(p.l.c.length>2?1:0),ord=phs.map((p,i)=>({p,s:sc(p)-i*.1})).sort((a,b)=>b.s-a.s),p=ord[0].p;
+  let c=.8+(/\b(hp|wa|whatsapp|telp|tlp|phone|kontak)\b/i.test(p.l.c)?.1:0)+(p.l.z=='D'||multi?.05:0);const why=[];if(phs.length>1){c-=.25;why.push('ada '+phs.length+' nomor lain')}if(x.pz.some(q=>q.slice(-9)==p.n.slice(-9))){c=.4;why.push('nomor sama dengan sisi pickup')}
+  out.wa=spF(p.n,c,why,phs.filter(q=>q.n!=p.n).map(q=>({v:q.n,label:q.n})))}
+ const NL1=/^[^A-Za-z]*([A-Za-z&\/. ]{0,28}?(?:penerima|receiver|kepada|yth|a\/n|a\.n|atas nama|customer|cust|konsumen|nama)[A-Za-z&\/. ]{0,22}?)\s*[:\-]\s*(.*)$/i,NL2=/(?:^|\s)(kepada|yth\.?|a\/n|a\.n|atas nama)\s+(.+)$/i;let nmDone=0;
+ for(let i=0;i<L.length&&!nmDone;i++){const l=L[i];if(l.z=='P'&&!multi)continue;let m=NL1.exec(l.c),lab='',v='';if(m){lab=m[1];v=m[2]}else{m=NL2.exec(l.c);if(m){lab=m[1];v=m[2]}}
+  if(!m||/alamat|almt|lokasi|pengirim|sender|pemesan|pembeli|bank|rek|toko/i.test(lab))continue;
+  v=v.trim();if(!v&&L[i+1]&&!/:/.test(L[i+1].c))v=L[i+1].c;v=v.replace(/\s+/g,' ').replace(/^[\/&,\-\s]+|[\/&,\-\s]+$/g,'');
+  if(/\b(hp|wa|telp|telepon|phone|kontak|no)\b/i.test(lab)&&!/[A-Za-z]{2,}/.test(v))continue;
+  if(v&&v.length<=40&&/[A-Za-z]/.test(v)&&!/\d{5,}/.test(v)){const st=/penerima|receiver|kepada|yth|a\/n|a\.n|atas nama/i.test(lab);out.nama=spF(v,st||l.z=='D'||multi||L.filter(q=>/^[^A-Za-z]*nama\b[^:]{0,20}[:\-]/i.test(q.c)).length<=1?.95:.8,['label nama']);nmDone=1}}
+ if(!nmDone){const N3=/\b(?:[Aa]ntar|[Dd]iantar|[Kk]irim|[Dd]ikirim|[Kk]irimkan|[Dd]eliver|[Ss]end|[Ss]hip)\s+(?:[Kk]e|[Tt]o)\s+((?:(?:[Bb]u|[Ii]bu|[Pp]ak|[Bb]apak|[Mm]as|[Mm]bak|[Kk]ak|[Mm]r|[Mm]rs|[Mm]s)\.?\s+[A-Za-z]+(?:\s+[A-Za-z]+)?)|(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}))/;for(const l of L){if(l.z=='P'&&!multi)continue;const m=N3.exec(l.c);if(m&&!SPADDR.test(m[1].split(/\s+/)[0])&&!/^(jl|jalan|gg|gang)/i.test(m[1])){const w=m[1].trim().split(/\s+/),k=w.findIndex((x,j)=>j>0&&(SPADDR.test(x)||/\d/.test(x)||/^(jam|pukul|ya|tolong)$/i.test(x)));out.nama=spF((k>0?w.slice(0,k):w).join(' '),.8,['konteks kirim ke']);nmDone=1;break}}}
+ const pl=L.findIndex(l=>l.ph.length&&l.z!='P'),isNm=s=>{const w=s.split(/\s+/);return w.length>=1&&w.length<=4&&/^[A-Za-z.'\s]+$/.test(s)&&s.length>=3&&!SPADDR.test(s)&&!SPITEM.test(s)&&!SPSTOP.test(s)&&spZs(s,'P')<.6&&spZs(s,'D')<.6};
+ if(!nmDone){const cand=[];L.forEach((l,i)=>{if(l.z=='P'&&!multi)return;if(/[:]/.test(l.c))return;const nc=l.c.replace(/^\d+[.)]\s*/,'');if(!isNm(nc))return;const adj=pl>=0&&Math.abs(i-pl)<=1;if(adj)cand.push({v:nc,c:.72});else if(i==0&&multi)cand.push({v:nc,c:.65})});
+  if(cand.length){const nv=cand[0];out.nama=spF(nv.v,nv.c-(cand.length>1?.1:0),['tanpa label'],cand.slice(1).map(c=>({v:c.v,label:c.v})))}}
+ const AL=/^[^A-Za-z]{0,6}(?:\d+[.)]\s*)?(alamat(?:\s*(?:pengiriman|penerima|tujuan|antar|kirim|lengkap))?|almt|addr(?:ess)?|lokasi(?:\s*(?:tujuan|pengiriman|kirim))?|tujuan(?:\s*pengiriman)?|destination|dest)\b\s*[:\-]?\s*(.*)$/i,isLab=s=>/^[A-Za-z][A-Za-z\/ ]{1,22}\s*:/.test(s),STP=/^[^A-Za-z]*(?:non[ -]?)?toll?\b|^[^A-Za-z]*(?:catatan|noted?|ongkir|barang|paket|jam|tanggal|nama|no\.?\s*(?:hp|telp)|hp|wa)\b/i,nd=q=>!/\b\d{1,2}[.:]\d{2}\b/.test(q)&&!/\b(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)[a-z]*\b/i.test(q);
+ let al=null,alLab=false;for(let i=0;i<L.length;i++){const l=L[i];if(l.z=='P'&&!multi)continue;const m=AL.exec(l.c);if(m&&(m[2]||L[i+1])){const p=m[2]?[m[2].replace(/^[^A-Za-z0-9]+/,'')]:[];for(let j=i+1;j<L.length&&p.length<5;j++){const q=L[j];if(isLab(q.c)||STP.test(q.c)||(q.z=='P'&&!multi)||q.i-L[j-1].i>1||new RegExp('\\d+\\s*('+SPU+')\\b','i').test(q.c)||/^\d+[.)]\s/.test(q.c))break;p.push(q.c)}if(p.join('').trim()){al={v:p.join(', ').replace(/\s*,\s*,/g,','),c:.93,w:['label alamat']};alLab=true;break}}}
+ if(!al){const p=[];L.forEach(l=>{if(l.z=='P'&&!multi)return;if(isLab(l.c)&&!/^(alamat|lokasi)/i.test(l.c))return;if(out.nama&&l.c==out.nama.v)return;if(SPADDR.test(l.c)||(/,/.test(l.c)&&/\d/.test(l.c)&&l.c.length>15&&nd(l.c))){if(!/\d+\s*(?:pcs|box|dus|kg)\b/i.test(l.c)&&!STP.test(l.c))p.push(spCut(l.c.replace(/^\d+[.)]\s*/,'').replace(/^[^A-Za-z0-9]+/,'')))}});
+  if(p.length){const v=p.join(', ');al={v,c:(multi||B.some(l=>l.z=='D'))?.8:.65,w:['pola alamat']};if(v.length<10)al.c-=.2;if(!x.hasV){al.c=Math.min(al.c,.7);al.w.push('tanpa label & vendor tidak ditemukan: bisa jadi lokasi pickup')}}}
+ if(al)out.alamat=spF(al.v,al.c,al.w);
+ const mu=[];L.forEach(l=>{if(l.z=='P'&&!multi)return;l.urls.forEach(u=>{if(SPMAP.test(u))mu.push({v:u,z:l.z})});l.co.forEach(c=>mu.push({v:c,z:l.z}))});
+ if(mu.length){const ex=mu.some(u=>u.z=='D')||multi;out.map=spF(mu[0].v,(ex?.9:.65)-(mu.length>1?.2:0),mu.length>1?['lebih dari satu peta']:[],mu.slice(1).map(u=>({v:u.v,label:u.v})))}
+ const items=[];let lab=null;const re=new RegExp('(\\d+(?:[.,]\\d+)?)\\s*('+SPU+')\\b','gi'),IL=/^[^A-Za-z]*(?:\d+[.)]\s*)?(?:barang|paket|isi|pesanan|item|cargo|produk)\s*[:\-]\s*(.+)$/i;
+ const IH=/^\W*(cake description|description|deskripsi(?: barang)?|barang|item|isi paket|isi|pesanan|produk|detail)\W*$/i;
+ L.forEach((l,li)=>{if(l.z=='P'&&!multi)return;const m1=IL.exec(l.c);if(m1&&!lab)lab=m1[1].trim();if(IH.test(l.c)&&!lab){const nx=L[li+1];if(nx&&nx.c&&!/^[-\W]*$/.test(nx.c)&&!/^[A-Za-z][A-Za-z\/ ]{1,22}\s*:/.test(nx.c))lab=nx.c}const ms=[...l.c.matchAll(re)];ms.forEach((m,k)=>{const end=m.index+m[0].length,nxt=ms[k+1]?ms[k+1].index:l.c.length,nm=l.c.slice(end,nxt).replace(SPFRAG,'').replace(/[\s,]*\b(ya|yaa|tolong|mohon|terima kasih|thanks)\b.*$/i,'').replace(/^[\s,+&:\-]*(?:dan\s+)?/i,'').replace(/[\s,+&\-]*(?:dan)?\s*$/i,'').trim();items.push((m[1]+' '+m[2]+(nm?' '+nm:'')).trim())});
+  const dm=l.c.match(/\d+\s*[x\u00d7]\s*\d+(?:\s*[x\u00d7]\s*\d+)?\s*(?:cm|mm|m)\b/i);if(dm&&ms.length)items[items.length-1]+=' ('+dm[0]+')'});
+ const fr=B.map(l=>(l.c.match(SPFRAG)||[])[1]).filter(Boolean)[0];
+ if(items.length||lab){const base=items.length?items.join('; '):lab;out.detail=spF(base+(fr?' ['+fr.toLowerCase()+']':''),items.length?.85:.9,[items.length?'jumlah + satuan':'label barang'])}
+ else{const il=L.find(l=>(l.z!='P'||multi)&&SPITEM.test(l.c)&&l.c.length<60&&!SPADDR.test(l.c)&&!isLab(l.c)&&!IH.test(l.c));if(il)out.detail=spF(il.c,.6,['kata barang tanpa jumlah'])}
+ return out}
+function spTol(t){const ls=t.split('\n').map(x=>x.replace(/[*_~]/g,' '));for(let i=0;i<ls.length;i++){const l=ls[i];if(!/\btoll?\b/i.test(l))continue;let v=l;const k=l.indexOf(':');
+ if(k>=0&&/\btoll?\b/i.test(l.slice(0,k))&&l.slice(k+1).trim())v=l.slice(k+1);else if(/\/|\(/.test(l)&&ls[i+1]&&ls[i+1].trim())v=ls[i+1];
+ if(/\b(non|tanpa|tidak|no|bukan)\s*-?\s*toll?\b/i.test(v))return false;if(/\btoll?\b/i.test(v))return true}return undefined}
+function smartParse(t,x){x=x||{};const V=x.vendors||[],today=x.today||'',rules=x.rules||[],L=spPrep(t||'');spZones(L);const low=L.map(l=>l.c).join(' ').toLowerCase(),R={fields:{},drops:[],notes:[],tol:spTol(t||'')},urls=[];
+ L.forEach(l=>l.urls.forEach(u=>urls.push(u)));
+ const vtel=V.map(v=>String(v.tel||'').replace(/\D/g,'').slice(-9)).filter(s=>s.length>=8),sph=[];L.forEach(l=>l.ph.forEach(p=>{if(l.z=='P'||vtel.includes(p.n.slice(-9)))sph.push(p.n)}));
+ const pz=[];L.forEach(l=>{if(l.z=='P')l.ph.forEach(p=>pz.push(p.n))});
+ const vp=spVendor(L,V,urls.filter(u=>true),sph,rules,low);if(vp)R.fields.vid=vp;
+ // tanggal
+ const D=[];L.forEach(l=>{if(l.z=='X')return;spDates(l,today).forEach(d=>D.push(Object.assign({z:l.z},d)))});
+ if(D.length){let pool=D.filter(d=>!d.wd);if(!pool.length)pool=D;pool.sort((a,b)=>b.c-a.c);const top=pool[0];let c=top.c,why=[top.w],cands=[],v=top.v;
+  const oth=[...new Set(pool.filter(d=>d.v!=top.v&&d.c>=.8).map(d=>d.v))];if(oth.length){c=Math.min(c,.65);why.push('ada '+(oth.length+1)+' tanggal berbeda');cands=oth.map(v=>({v,label:v}))}
+  const wk=D.find(d=>d.wd&&d.li==top.li);
+  if(wk&&!top.wd&&!oth.length){const ps=top.v.split('-').map(Number),dow=new Date(ps[0],ps[1]-1,ps[2]).getDay();if(dow!=wk.k){const y0=+(today||top.v).slice(0,4),alt=[y0,y0+1,y0-1].map(y=>new Date(y,ps[1]-1,ps[2])).find(x=>x.getDay()==wk.k&&x.getMonth()==ps[1]-1);
+   if(alt){v=alt.getFullYear()+'-'+String(alt.getMonth()+1).padStart(2,'0')+'-'+String(alt.getDate()).padStart(2,'0');cands=[{v:top.v,label:top.v+' (sesuai teks)'}];c=.62;why=['hari tidak cocok dengan tahun '+ps[0]+'; dipakai '+alt.getFullYear()+' (cek)']}else{c=Math.min(c,.65);why.push('hari tidak cocok dengan tanggal')}}}
+  if(today){const diff=(new Date(v+'T00:00:00')-new Date(today+'T00:00:00'))/864e5;if(diff<-7){c-=.25;why.push('tanggal sudah lewat')}else if(diff>180){c-=.2;why.push('tanggal sangat jauh')}}
+  R.fields.tgl=spF(v,c,why,cands)}
+ // jam
+ const dl=new Set();D.forEach(d=>{if(!d.wd)dl.add(d.li)});const TM={};
+ L.forEach(l=>{if(l.z=='X')return;spTimes(l,rules,l.z).forEach(tm=>{if(!tm.f&&(dl.has(l.i)||dl.has(l.i-1)||dl.has(l.i-2))){tm.f='jPick';tm.c=.65;tm.w='jam di dekat tanggal (umumnya jam ambil)'}const k=tm.f||'?';(TM[k]=TM[k]||[]).push(tm)})});
+ ['jPick','jAntar','jTerima'].forEach(k=>{const a=TM[k];if(!a)return;a.sort((x,y)=>y.c-x.c);const u=[...new Set(a.map(z=>z.v))];let c=a[0].c;const why=[a[0].w],rv=[...new Set(a.filter(z=>z.v!=a[0].v&&z.c>=.8).map(z=>z.v))];if(rv.length){c=Math.min(c,.6);why.push('ada '+(rv.length+1)+' jam untuk peran sama')}
+  if(k=='jTerima'){c=Math.min(c,.8);why.push('waktu sudah diterima')}R.fields[k]=spF(a[0].v,c,why,u.filter(v=>v!=a[0].v).map(v=>({v,label:v})))});
+ R.lone=(TM['?']||[]).map(z=>z.v);
+ if(R.fields.jPick&&R.fields.jAntar&&R.fields.jPick.v>R.fields.jAntar.v&&!R.fields.tgl?.cands?.length){R.fields.jPick.c-=.2;R.fields.jAntar.c-=.2;R.fields.jPick.why.push('jam ambil setelah jam antar?')}
+ // blok penerima
+ let idx=L.map((l,i)=>/^\s*\d{1,2}[.)]\s+\S/.test(l.raw)?i:-1).filter(i=>i>=0),blocks=null;
+ if(idx.length>=2){const bl=idx.map((s,k)=>L.slice(s,idx[k+1]!=null?idx[k+1]:L.length)),q=bl.filter(b=>b.some(l=>l.ph.length)||b.some(l=>SPADDR.test(l.c)));if(q.length>=2)blocks=q}
+ if(!blocks){const par=[];let cur=[];L.forEach(l=>{if(!l.c){if(cur.length)par.push(cur);cur=[]}else cur.push(l)});if(cur.length)par.push(cur);const q=par.filter(b=>b.some(l=>l.ph.some(p=>!sph.includes(p.n)))&&b.some(l=>SPADDR.test(l.c)));if(q.length>=2)blocks=q}
+ const multi=!!blocks;R.multi=multi;(blocks||[L]).forEach(B=>R.drops.push(spDrop(B,{multi,sph,pz,hasV:!!vp})));
+ R.drops=R.drops.filter(d=>d.nama||d.wa||d.alamat||d.map||d.detail);
+ if(sph.length||pz.length)R.notes.push('Nomor sisi pickup tidak dimasukkan ke penerima.');
+ if(R.fields.vid&&R.drops.some(d=>d.nama&&vp&&V.find(v=>v.id==vp.v)&&d.nama.v.toLowerCase()==V.find(v=>v.id==vp.v).nama.toLowerCase().split('(')[0].trim())){R.fields.vid.c=Math.min(R.fields.vid.c,.55);R.fields.vid.why.push('nama sama dengan penerima')}
+ return R}
+/* ---------- terapkan ke form (tidak menimpa isian manual) ---------- */
+const SP={last:null,AF:{},cands:[]},SPL={vid:'Vendor (pickup)',tgl:'Tanggal',jPick:'Jam ambil',jAntar:'Jam antar',jTerima:'Jam diterima',nama:'Penerima',wa:'No. HP',alamat:'Alamat',map:'Peta',detail:'Barang'};
+function spPut(path,val){const p=path.split('.');if(p[0]=='drops'){while(F.drops.length<=+p[1])F.drops.push(newDrop());F.drops[+p[1]][p[2]]=val}else F[p[0]]=val}
+function spGet(path){const p=path.split('.');return p[0]=='drops'?((F.drops[+p[1]]||{})[p[2]]||''):(F[p[0]]||'')}
+function spSet(path,val){const cur=spGet(path),af=SP.AF[F.id]=SP.AF[F.id]||{};if(cur===val){af[path]=val;return'same'}
+ if(cur&&af[path]!==cur&&!(path=='tgl'&&F.isNew&&cur==today()))return'skip';spPut(path,val);af[path]=val;return'set'}
+function spApply(R,t){F.chat=t;const items=[],add=(path,f)=>{if(!f)return;const it={path,label:SPL[path.split('.').pop()]+(path.startsWith('drops')&&R.drops.length>1?' '+(+path.split('.')[1]+1):''),v:f.v,c:f.c,k:spC(f.c),why:f.why,cands:f.cands};
+  if(it.k=='L')it.st='cand';else it.st=spSet(path,f.v);items.push(it)};
+ ['vid','tgl','jPick','jAntar','jTerima'].forEach(k=>add(k,R.fields[k]));if(R.lone.length&&!R.fields.jAntar&&!R.fields.jPick)items.push({path:'lone',label:'Jam (tanpa konteks)',v:R.lone[0],c:.45,k:'L',st:'cand',cands:R.lone.slice(1).map(v=>({v}))});
+ R.drops.forEach((d,i)=>['nama','wa','alamat','map','detail'].forEach(k=>add('drops.'+i+'.'+k,d[k])));
+ const miss=[];if(!R.fields.vid)miss.push('Vendor');if(!R.fields.tgl)miss.push('Tanggal');if(!R.fields.jPick&&!R.fields.jAntar)miss.push('Jam');
+ if(!R.drops.length)miss.push('Penerima/alamat');else R.drops.forEach((d,i)=>{const n=R.drops.length>1?' '+(i+1):'';if(!d.nama)miss.push('Nama'+n);if(!d.wa)miss.push('No. HP'+n);if(!d.alamat)miss.push('Alamat'+n)});
+ R.items=items;R.miss=miss;R.oid=F.id;SP.last=R;F.drops.forEach((_,i)=>autoKm(i))}
+function spUse(k){const c=SP.cands[k];if(!c)return;const path=c.path=='lone'?(F.jAntar||!F.jPick?'jPick':'jAntar'):c.path;if(c.path=='lone'&&!F.jPick&&!F.jAntar){return toast('Pilih peran jam: tekan lagi setelah mengisi jam ambil/antar manual')}
+ spPut(path,c.v);(SP.AF[F.id]=SP.AF[F.id]||{})[path]=c.v;const it=SP.last&&SP.last.items.find(x=>x.path==c.path);if(it){it.st='set';it.k='M'}F.drops.forEach((_,i)=>autoKm(i));omodal()}
+function spCard(){const R=SP.last;if(!R)return'';SP.cands=[];const col={H:'#2e9e5b',M:'#e6a100',L:'#d64545'},dot=k=>`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${col[k]};margin-right:5px"></span>`,sh=v=>{v=String(v);return esc(v.length>32?v.slice(0,31)+'\u2026':v)};
+ const ok=R.items.filter(i=>i.st&&i.st!='cand'&&i.st!='skip'&&i.k=='H'),rv=R.items.filter(i=>i.k!='H'||i.st=='skip'||i.st=='cand');
+ const line=i=>{let chip='';if(i.st=='skip'||i.st=='cand'){SP.cands.push({path:i.path,v:i.v});chip=`<span class="chip" style="padding:3px 8px;font-size:12px" onclick="spUse(${SP.cands.length-1})">Pakai</span>`}
+  const tag=i.st=='skip'?' <span class="mut">(sudah terisi manual)</span>':i.st=='cand'?' <span class="mut">(tidak diisi, kandidat)</span>':'';return `<div style="margin:4px 0;font-size:13px">${dot(i.k)}<b>${esc(i.label)}:</b> ${sh(i.v)}${tag} ${chip}${i.why&&i.why.length&&i.k!='H'?`<div class="mut" style="margin-left:14px;font-size:12px">${esc(i.why.join('; '))}</div>`:''}</div>`};
+ return `<div class="card" style="margin:8px 0;padding:10px"><b>Hasil baca chat</b> <span class="mut" style="font-size:12px">${dot('H')}jelas ${dot('M')}cek ${dot('L')}ragu</span>`
+ +(ok.length?`<div style="margin-top:6px;font-size:13px"><b>Terisi (${ok.length}):</b> ${ok.map(i=>dot('H')+esc(i.label)).join(' &nbsp;')}</div>`:'')
+ +(rv.length?`<div style="margin-top:6px"><b style="font-size:13px">Perlu dicek (${rv.length}):</b>${rv.map(line).join('')}</div>`:'')
+ +(R.miss.length?`<div style="margin-top:6px;font-size:13px"><b>Belum ditemukan:</b> <span class="mut">${esc(R.miss.join(', '))}</span></div>`:'')
+ +(R.tol===true?'<div style="margin-top:6px;font-size:13px"><b>Tol:</b> ya (isi biaya tol di form order)</div>':R.tol===false?'<div style="margin-top:6px;font-size:13px"><b>Tol:</b> tidak</div>':'')+`<div class="mut" style="margin-top:6px;font-size:12px">Teks asli tersimpan di order. Isian manual tidak ditimpa. <a href="#" onclick="spOld();return false">Pakai parser lama</a></div></div>`}
+const _pcOld=parseChat3;
+function spOld(){SP.last=null;_pcOld()}
+parseChat3=function(){const t=$('#chat').value;if(!t.trim())return toast('Tempel teks chat dulu');let R;try{R=smartParse(t,{vendors:DB.vendors,today:today(),rules:LRN.on?LRN.rules:[]})}catch(e){return _pcOld()}
+ spApply(R,t);const n=R.items.filter(i=>i.st=='set'||i.st=='same').length,r=R.items.filter(i=>i.k!='H'||i.st=='skip'||i.st=='cand').length;toast('Terbaca '+n+' field'+(r?' \u00b7 '+r+' perlu dicek':'')+(R.tol?' \u00b7 ada catatan tol':''));omodal()};
+const _om=omodal;omodal=function(){_om();if(SP.last&&SP.last.oid==F.id){const d=document.querySelector('#m details.card');if(d)d.insertAdjacentHTML('afterend',spCard())}};
+const _eo=editO;editO=function(id){SP.last=null;_eo(id)};
+/* ---------- smart learning (terkontrol, terpisah dari DB order) ---------- */
+const LK='ssdt_test_learn';let LRN=Object.assign({on:true,ex:[],cand:[],rules:[],rej:[]},(()=>{try{return JSON.parse(localStorage.getItem(LK))||{}}catch(e){return{}}})());
+const lrnSave=()=>{try{localStorage.setItem(LK,JSON.stringify(LRN))}catch(e){}};
+function lrnAcc(rules){let a=0;LRN.ex.forEach(e=>{const R=smartParse(e.text,{vendors:DB.vendors,today:today(),rules});['vid','jPick','jAntar'].forEach(k=>{if(!e.exp[k])return;const f=R.fields[k];if(f&&spC(f.c)!='L'&&f.v===e.exp[k])a++})});return a}
+function lrnCap(){if(!LRN.on||!F.chat||!F.chat.trim()||!SP.AF[F.id])return;const exp={vid:F.vid||'',jPick:F.jPick||'',jAntar:F.jAntar||''},e={oid:F.id,text:F.chat,exp},i=LRN.ex.findIndex(x=>x.oid==F.id);if(i>=0)LRN.ex[i]=e;else LRN.ex.push(e);if(LRN.ex.length>120)LRN.ex.shift();
+ const R=smartParse(F.chat,{vendors:DB.vendors,today:F.tgl||today(),rules:LRN.rules}),addC=(key,o)=>{let c=LRN.cand.find(x=>x.key==key);if(!c){c=Object.assign({key,oids:[]},o);LRN.cand.push(c)}if(!c.oids.includes(F.id))c.oids.push(F.id)};
+ if(exp.vid&&(!R.fields.vid||R.fields.vid.v!==exp.vid)){const nmw=DB.vendors.map(v=>v.nama.toLowerCase()).join(' '),stop=/^(jemput|pickup|ambil|antar|kirim|tolong|mohon|halo|hari|besok|tanggal|jam|alamat|penerima|dari|untuk|yang|dan|ibu|bapak|pak|bu|kak|mas|mbak|order|pesanan|paket|nama|terima|kasih)$/;
+  const toks=[...new Set(F.chat.toLowerCase().split('\n').slice(0,4).join(' ').replace(/https?:\/\/\S+/g,' ').split(/[^a-z]+/))].filter(w=>w.length>=4&&!stop.test(w)&&!nmw.split(/[^a-z]+/).includes(w)).slice(0,6);toks.forEach(w=>addC('alias|'+w+'|'+exp.vid,{t:'alias',tok:w,vid:exp.vid}))}
+ ['jPick','jAntar'].forEach(k=>{if(!exp[k]||(R.fields[k]&&R.fields[k].v===exp[k]))return;const hh=exp[k].slice(0,2).replace(/^0/,'0?'),re=new RegExp('([a-z]{3,})\\s*(?:jam|pukul|pkl)?\\s*:?\\s*'+hh+'[.:]?'+exp[k].slice(3)+'?\\b','i'),m=F.chat.toLowerCase().match(re);if(m)addC('cue|'+m[1]+'|'+k,{t:'cue',w:m[1],f:k})});
+ lrnPromote();lrnSave()}
+function lrnPromote(){for(const c of LRN.cand.slice()){if(c.oids.length<2)continue;const rival=LRN.cand.some(x=>x!==c&&x.t==c.t&&(c.t=='alias'?x.tok==c.tok&&x.vid!=c.vid:x.w==c.w&&x.f!=c.f));if(rival)continue;
+  const r=c.t=='alias'?{t:'alias',tok:c.tok,vid:c.vid}:{t:'cue',w:c.w,f:c.f},b=lrnAcc(LRN.rules),n=lrnAcc(LRN.rules.concat([r]));
+  if(n>b){LRN.rules.push(Object.assign(r,{on:new Date().toISOString().slice(0,10),n:c.oids.length}));LRN.cand=LRN.cand.filter(x=>x!==c)}else if(n<b){LRN.rej.push(c.key);LRN.cand=LRN.cand.filter(x=>x!==c)}}}
+const _sO2=saveO;saveO=function(f){try{lrnCap()}catch(e){}_sO2(f)};
+function lrnPanel(){const r=LRN.rules.map((x,i)=>`<div class="row sp" style="margin:4px 0;font-size:13px"><span>${x.t=='alias'?'Alias \u201c'+esc(x.tok)+'\u201d \u2192 '+esc((vend(x.vid)||{}).nama||'?'):'Kata \u201c'+esc(x.w)+'\u201d = '+(x.f=='jPick'?'jam ambil':'jam antar')}</span><button class="g sm" onclick="lrnDel(${i})">Hapus</button></div>`).join('');
+ return `<h3 style="margin:18px 0 4px">Smart Learning</h3><p class="mut" style="margin:0 0 6px">${LRN.ex.length} contoh koreksi \u00b7 ${LRN.rules.length} aturan aktif \u00b7 ${LRN.cand.length} menunggu bukti (butuh min. 2 order berbeda)</p>${r}<div class="row"><button class="g sm" onclick="lrnToggle()">${LRN.on?'Nonaktifkan':'Aktifkan'} learning</button><button class="g sm" onclick="lrnReset()">Reset learning</button></div>`}
+function lrnDel(i){LRN.rules.splice(i,1);lrnSave();bkOpen()}
+function lrnToggle(){LRN.on=!LRN.on;lrnSave();bkOpen()}
+function lrnReset(){askC('Hapus semua contoh dan aturan learning? Data order tidak berubah.',()=>{LRN={on:LRN.on,ex:[],cand:[],rules:[],rej:[]};lrnSave();bkOpen()},'Ya, reset')}
+const _bo3=bkOpen;bkOpen=function(){_bo3();const s=$('#m .sheet');if(s)s.insertAdjacentHTML('beforeend',lrnPanel())};
+/* ===================== Backup ke Google Sheets (manual) ===================== */
+const GSRE=/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/;
+function gsPayload(){const K=kpi(()=>true),rows=rowsOf2(DB.orders);return{at:new Date().toISOString(),backup:JSON.parse(bkData()),rows,rowHeaders:rows.length?Object.keys(rows[0]):[],summary:sumOf2(DB.orders,K).map(x=>[x[0],x[1]])}}
+function gsSaveUrl(){const u=(($('#gsu')||{}).value||'').trim(),v=(($('#gsv')||{}).value||'').trim();if(u&&!GSRE.test(u))return toast('URL Web App harus …/macros/s/…/exec');if(v&&!/^https:\/\/docs\.google\.com\/spreadsheets\//.test(v))return toast('Link Sheet harus docs.google.com/spreadsheets/…');DB.gsheet=u;DB.gsheetView=v;save();toast('Tersimpan')}
+function gsOpen(){const v=((($('#gsv')||{}).value)||DB.gsheetView||'').trim();if(!v)return toast('Isi & simpan link Google Sheet dulu');window.open(v,'_blank','noopener')}
+function gsSend(){const el=$('#gsu'),url=((el?el.value:'')||DB.gsheet||'').trim();if(!url)return toast('Isi URL Google Sheets dulu');if(!GSRE.test(url))return toast('URL harus …/macros/s/…/exec');if(el&&url!=DB.gsheet){DB.gsheet=url;save()}if(!DB.orders.length)return toast('Belum ada order untuk dikirim');toast('Mengirim ke Google Sheets…');
+ fetch(url,{method:'POST',body:JSON.stringify(gsPayload()),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.text()).then(t=>{let j=null;try{j=JSON.parse(t)}catch(e){}
+  DB.gsAt=new Date().toISOString();try{localStorage.setItem(TKEY,JSON.stringify(DB))}catch(e){}
+  if(j&&j.ok)toast('✅ Terkirim ke Google Sheets ('+(j.orders||0)+' order)');else toast('✅ Terkirim — silakan cek Google Sheet-mu');
+  const p=$('#gsat');if(p)p.textContent='Terakhir terkirim: '+new Date(DB.gsAt).toLocaleString('id-ID')}).catch(e=>toast('⚠️ Gagal kirim. Cek koneksi internet & URL.'))}
+function gsPanel(){const at=DB.gsAt?new Date(DB.gsAt).toLocaleString('id-ID'):'belum pernah',f=DB.gsAuto||'off',lab={off:'Mati',daily:'Harian',weekly:'Mingguan',monthly:'Bulanan'},due=gsDue(),ch=k=>'<span class="chip '+(f==k?'on':'')+'" onclick="gsSetAuto(\''+k+'\')">'+lab[k]+'</span>';
+ return '<h3 style="margin:18px 0 4px">Backup ke Google Sheets</h3><p class="mut" style="margin:0 0 6px">Kirim cadangan ke Google Sheet-mu (tabel rapi + data untuk restore). Link hanya tersimpan di HP ini.</p>'
+ +'<label>URL Web App (…/exec) — untuk kirim data</label><input id="gsu" inputmode="url" value="'+esc(DB.gsheet||'')+'" placeholder="https://script.google.com/macros/s/…/exec">'
+ +'<label>Link Google Sheet — untuk tombol Buka</label><input id="gsv" inputmode="url" value="'+esc(DB.gsheetView||'')+'" placeholder="https://docs.google.com/spreadsheets/…">'
+ +'<div class="row" style="margin-top:8px"><button class="g sm" onclick="gsSaveUrl()">Simpan</button><button class="s sm" onclick="gsSend()">Kirim sekarang</button><button class="g sm" onclick="gsOpen()">📊 Buka Sheet</button></div>'
+ +'<label style="margin-top:10px">Backup otomatis (saat aplikasi dibuka)</label><div class="row">'+ch('off')+ch('daily')+ch('weekly')+ch('monthly')+'</div>'
+ +'<p class="mut" id="gsat" style="margin-top:6px">Backup terakhir: '+at+(f!='off'?' · '+(due?'<span style="color:var(--warn)">⚠️ waktunya backup</span>':'<span style="color:var(--ac2)">✅ '+lab[f].toLowerCase()+' up-to-date</span>'):'')+'</p>'
+ +'<p class="mut" style="font-size:12px">Backup otomatis hanya jalan saat aplikasi dibuka &amp; ada internet. Kalau app tidak dibuka, tidak ada backup di periode itu.</p>'}
+const _bo5=bkOpen;bkOpen=function(){_bo5();const s=$('#m .sheet');if(s)s.insertAdjacentHTML('beforeend',gsPanel())};
+/* ===================== Tahap B: indikator data belum lengkap ===================== */
+function chkIssues(){const t=today(),out=[];DB.orders.forEach(o=>{if(o.status=='Cancel')return;const p=[];
+ if(!o.vid||!vend(o.vid))p.push('vendor belum dipilih');
+ if(!(o.drops||[]).length||(o.drops||[]).some(d=>!(d.alamat||'').trim()))p.push('alamat penerima kosong');
+ if(o.status=='Terkirim'&&!(num(o.nom)>0))p.push('Gross belum diisi');
+ if(o.status=='Terkirim'&&dayAlloc(o.tgl).miss)p.push('Actual KM belum · profit sementara');
+ if(o.status=='Belum Dikirim'&&o.tgl<t)p.push('status belum diupdate (tanggal sudah lewat)');
+ if(p.length)out.push({o,p})});
+ return out.sort((a,b)=>String(b.o.tgl).localeCompare(String(a.o.tgl)))}
+function chkPanel(){const L=chkIssues();if(!L.length)return '<div class="card" style="border-left:5px solid var(--ac2)"><b>✅ Semua order lengkap</b><div class="mut">Tidak ada data yang perlu diperiksa.</div></div>';
+ return '<details class="card" style="border-left:5px solid var(--warn)"><summary style="cursor:pointer;font-weight:800;list-style:none">⚠️ Perlu diperiksa ('+L.length+' order) — ketuk untuk lihat</summary><div style="margin-top:8px">'+L.map((x,i)=>{const o=x.o,v=vend(o.vid);return '<div class="row sp" style="border-top:1px solid var(--line);padding:6px 0;align-items:flex-start"><span style="flex:1;min-width:0"><b>'+(i+1)+'. '+esc(v?v.nama:'(tanpa vendor)')+'</b> <span class="mut">'+fmtD(o.tgl)+' · '+esc((o.drops&&o.drops[0]&&o.drops[0].nama)||'-')+'</span><br>'+x.p.map(s=>'<span class="bb b2" style="margin:3px 3px 0 0;display:inline-block">'+s+'</span>').join('')+'</span><button class="g sm" style="flex:none" onclick="editO(\''+o.id+'\')">Buka</button></div>'}).join('')+'</div></details>'}
+const _rnChk=render;render=function(){_rnChk();if(V=='dash'){const a=$('#app');if(a)a.insertAdjacentHTML('afterbegin',chkPanel())}};
+/* ===================== Tahap C: backup otomatis + tombol tutup ===================== */
+function gsDue(){const f=DB.gsAuto;if(!f||f=='off')return false;if(!DB.gsAt)return true;const need={daily:1,weekly:7,monthly:30}[f];if(!need)return false;return (Date.now()-new Date(DB.gsAt).getTime())>=need*864e5}
+function gsSetAuto(f){DB.gsAuto=f;save();try{if($('#m .sheet'))bkOpen()}catch(e){}if(f!='off'&&GSRE.test((DB.gsheet||'').trim())&&DB.orders.length&&gsDue())gsSend()}
+function gsAutoRun(){try{if(DB.gsAuto&&DB.gsAuto!='off'&&GSRE.test((DB.gsheet||'').trim())&&DB.orders.length&&gsDue())gsSend()}catch(e){}}
+const _boX=bkOpen;bkOpen=function(){_boX();const m=document.getElementById('m');if(m&&!m.querySelector('.gsx')){const b=document.createElement('button');b.className='g sm gsx';b.setAttribute('aria-label','Tutup');b.textContent='✕';b.style.cssText='position:fixed;top:14px;right:14px;z-index:50;background:var(--card);box-shadow:0 2px 10px #0006;min-width:42px;height:42px;border-radius:50%;font-size:18px;padding:0';b.onclick=closeM;m.appendChild(b)}};
+setTimeout(gsAutoRun,1500);
+
+go(V);
+</script></body></html>
